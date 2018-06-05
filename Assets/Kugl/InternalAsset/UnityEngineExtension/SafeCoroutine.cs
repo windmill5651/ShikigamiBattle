@@ -19,11 +19,18 @@ namespace UnityEngine.Extensions
         #region フィールド/プロパティ
 
         /// <summary>
-        /// 現在のIEnumeratorです。
+        /// 現在のイテレータです。
         /// </summary>
         public object Current
         {
-            get { return current; }
+            get
+            {
+                if( current == null )
+                {
+                    return null;
+                }
+                return current.Current;
+            }
         }
 
         public Func<IEnumerator> sequenceCreateFunc = null;
@@ -77,7 +84,7 @@ namespace UnityEngine.Extensions
                 try
                 {
                     current = sequenceCreateFunc();
-                    isNext = true;
+                    isNext = current.MoveNext();
                 }
                 catch ( Exception e )
                 {
