@@ -57,7 +57,7 @@ namespace UnityEngine.Extensions
         #endregion
 
 
-        #region
+        #region メソッド
 
         /// <summary>
         /// 空のコルーチンチェーンを返します。
