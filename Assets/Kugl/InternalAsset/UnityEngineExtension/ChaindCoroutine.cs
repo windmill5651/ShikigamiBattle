@@ -25,12 +25,12 @@ namespace UnityEngine.Extensions
         {
             get
             {
-                if( current == null )
+                if( current != null )
                 {
-                    return null;
+                    return current.Current;
                 }
 
-                return current.Current;
+                return null;
             }
         }
 
