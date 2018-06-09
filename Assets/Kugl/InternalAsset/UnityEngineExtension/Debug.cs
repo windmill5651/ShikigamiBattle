@@ -92,6 +92,15 @@ public static class Debug
     }
 
     /// <summary>
+    /// ワーニングのログを出力します
+    /// </summary>
+    /// <param name="message">メッセージ</param>
+    public static void LogWarning( object message )
+    {
+        Logger.LogWarning( "", message );
+    }
+
+    /// <summary>
     /// エラーログを出します。
     /// </summary>
     /// <param name="tag">タグ</param>
@@ -99,6 +108,15 @@ public static class Debug
     public static void LogError( string tag, object message )
     {
         Logger.LogError( tag, message );
+    }
+
+    /// <summary>
+    /// エラーログを出力します。
+    /// </summary>
+    /// <param name="message">メッセージ</param>
+    public static void LogError( object message )
+    {
+        Logger.LogError( "", message );
     }
 
     /// <summary>

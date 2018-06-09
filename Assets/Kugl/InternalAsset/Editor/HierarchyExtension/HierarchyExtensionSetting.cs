@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 /// <summary>
 /// エディタ拡張機能の名前空間です。
@@ -15,6 +13,7 @@ namespace UnityEditor.Extensions
     ///  
     /// Author:Windmill
     /// </summary>
+    [ CreateAssetMenu( ) ]
     public class HierarchyExtensionSetting : ScriptableObject
     {
 
