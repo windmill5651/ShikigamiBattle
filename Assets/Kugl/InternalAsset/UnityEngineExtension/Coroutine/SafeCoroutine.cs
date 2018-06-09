@@ -33,7 +33,10 @@ namespace UnityEngine.Extensions
             }
         }
 
-        public Func<IEnumerator> sequenceCreateFunc = null;
+        /// <summary>
+        /// コルーチンを生成する関数です。
+        /// </summary>
+        public Func< IEnumerator > sequenceCreateFunc = null;
 
         /// <summary>
         /// 現在のコルーチン
