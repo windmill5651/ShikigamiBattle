@@ -70,7 +70,7 @@ namespace UnityEngine.Extensions
         /// </summary>
         public CombinedException()
         {
-            exceptionList = new List<Exception>();
+            exceptionList = new List< Exception >();
         }
 
         /// <summary>
