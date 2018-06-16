@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Kuglトランジションのシステム名前空間です。
 /// </summary>
-namespace Kugl.Transition
+namespace Kugl.Transition.Scene
 {
 
     /// <summary>

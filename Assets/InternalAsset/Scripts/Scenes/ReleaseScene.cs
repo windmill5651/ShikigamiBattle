@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Kugl.Transition;
+using Kugl.Transition.Scene;
 using System;
 
 public class ReleaseScene : SceneBase {
