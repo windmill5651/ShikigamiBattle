@@ -146,7 +146,10 @@ namespace UnityEngine.Extensions
                 if ( coroutineQueue.Count == 0 )
                 {
                     // キューのカウントがなくなっていたら完了
-                    onComplete();
+                    if ( onComplete != null )
+                    {
+                        onComplete();
+                    }
                 }
                 else
                 {

@@ -48,7 +48,6 @@ namespace UnityEngine.Extensions
         /// </summary>
         private Exception exception;
 
-
         #endregion
 
 
@@ -87,7 +86,10 @@ namespace UnityEngine.Extensions
                 try
                 {
                     current = sequenceCreateFunc();
-                    isNext = current.MoveNext();
+                    if( current != null )
+                    {
+                        isNext = current.MoveNext();
+                    }
                 }
                 catch ( Exception e )
                 {
