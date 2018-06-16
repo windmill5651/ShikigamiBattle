@@ -181,7 +181,7 @@ namespace Kugl.Transition
         /// </summary>
         /// <param name="sceneName">シーン名</param>
         private IEnumerator LoadSceneAsync( string sceneName )
-        {
+        {           
             var loadTask = SceneManager.LoadSceneAsync( sceneName, LoadSceneMode.Single );
 
             while( loadTask.isDone )

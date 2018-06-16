@@ -51,13 +51,34 @@ namespace Game.System
         {
 
             var startSceneName = "";
+
+            #if GAME_DEBUG
+            Debug.SetLogEnabled( true );
             startSceneName = startSceneDebug;
+            #elif GAME_PRODUCT
+            startSceneName = startSceneProduct;
+            Debug.SetLogEnabled( false );
+            #endif
 
             // トランジションシステムの初期化
             TransitionSystem.Instance.Initialize();
 
             // 最初のシーンへ
             yield return TransitionSystem.Instance.TransitionSceneAsync( startSceneName );
+        }
+
+        /// <summary>
+        /// デバッグ用の設定です。
+        /// </summary>
+        private void DebugSetting()
+        {
+        }
+
+        /// <summary>
+        /// リリース用の設定です。
+        /// </summary>
+        private void ReleaseSetting()
+        {
         }
 
         #endregion

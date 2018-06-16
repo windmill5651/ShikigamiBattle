@@ -34,36 +34,10 @@ namespace Kugl.BaseSystem
         /// </summary>
         void Start()
         {
-            #if GAME_DEBUG
-
-            DebugSetting();
-
-            #elif GAME_PRODUCT
-
-            ReleaseSetting();
-
-            #endif
-
             var systemObj = Instantiate( baseSystemObj );
             DontDestroyOnLoad( systemObj );
         }
         
-        /// <summary>
-        /// デバッグ用の設定です。
-        /// </summary>
-        private void DebugSetting()
-        {
-            Debug.SetLogEnabled( true );
-        }
-
-        /// <summary>
-        /// リリース用の設定です。
-        /// </summary>
-        private void ReleaseSetting()
-        {
-            Debug.SetLogEnabled( false );
-        }
-
         #endregion
 
     }
