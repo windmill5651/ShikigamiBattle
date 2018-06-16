@@ -45,18 +45,18 @@ namespace Kugl.Transition.Scene
         /// <summary>
         /// シーンをロードするときの処理です。
         /// </summary>
-        public abstract IEnumerator OnLoadScene( SceneParameterBase param );
+        protected abstract IEnumerator OnLoadScene( SceneParameterBase param );
 
         /// <summary>
         /// シーンを開くときの処理です。
         /// </summary>
-        public abstract IEnumerator OnOpenScene( SceneParameterBase param );
+        protected abstract IEnumerator OnOpenScene( SceneParameterBase param );
 
         /// <summary>
         /// シーンをクローズします。
         /// </summary>
         /// <returns></returns>
-        public abstract IEnumerator OnCloseScene();
+        protected abstract IEnumerator OnCloseScene();
 
         #endregion
 
