@@ -1,9 +1,10 @@
 ﻿
-using Kugl.Transition.Scene;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Extensions;
+using Kugl.Transition.Scene;
+using Kugl.Transition.Screen;
 
 /// <summary>
 /// Kuglのトランジションシステム名前空間です。
@@ -60,6 +61,7 @@ namespace Kugl.Transition
         public void Initialize()
         {
             InitializeSceneFunction();
+            InitializeScreenFunc();
         }
 
         /// <summary>
@@ -133,6 +135,10 @@ namespace Kugl.Transition
                 {
                     return OpenSceneAsync( param );
                 } )
+                .Continue( ()=>
+                {
+                    return StartScreenAsync( param );
+                } )
                 .OnComplete( ( c ) =>
                 {
                     if ( c.Exception != null )
@@ -145,6 +151,34 @@ namespace Kugl.Transition
             yield return transition;
         }
 
+        /// <summary>
+        /// スクリーンを遷移させます。
+        /// </summary>
+        /// <param name="screenName">スクリーンの名前です</param>
+        /// <param name="param">パラメータ</param>
+        public IEnumerator TransitionScreenAsync( string screenName, ScreenParameterBase param = null )
+        {
+            if( param == null )
+            {
+                param = new ScreenParameterBase();
+            }
+
+            var transition = ChaindCoroutine.Empty()
+                .Continue( () =>
+                {
+                    return UnloadScreenAsync( param );
+                } )
+                .Continue( ()=>
+                {
+                    return LoadScreenAsync( screenName, param );
+                } )
+                .Continue( ()=>
+                {
+                    return OpenScreenAsync( param );
+                } );
+
+            yield return transition;
+        }
 
 
         #endregion

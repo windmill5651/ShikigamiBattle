@@ -64,7 +64,7 @@ namespace Game.System
             TransitionSystem.Instance.Initialize();
 
             // 最初のシーンへ
-            yield return TransitionSystem.Instance.TransitionSceneAsync( startSceneName );
+            yield return TransitionSystem.Instance.TransitionSceneAsync( startSceneName, null );
         }
 
         /// <summary>

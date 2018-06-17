@@ -1,7 +1,9 @@
-﻿using Kugl.Transition.Scene;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Extensions;
+using Kugl.Transition.Scene;
+using Kugl.Transition.Screen;
 
 /// <summary>
 /// Kuglのトランジションシステム名前空間です。
@@ -18,6 +20,17 @@ namespace Kugl.Transition
     /// </summary>
     public partial class TransitionSystem
     {
+        #region フィールド/プロパティ
+
+        /// <summary>
+        /// 現在のシーン
+        /// </summary>
+        private SceneBase currentScene = null;
+
+        #endregion
+
+
+        #region メソッド
 
         /// <summary>
         /// シーンを非同期でアンロードします。
@@ -33,9 +46,8 @@ namespace Kugl.Transition
             }
 
             // 未使用のアセットをアンロードします。
-            Resources.UnloadUnusedAssets();
-
-            yield break;
+            var unloadRequest = Resources.UnloadUnusedAssets();
+            while ( !unloadRequest.isDone ) { yield return null; }
         }
 
         /// <summary>
@@ -102,16 +114,50 @@ namespace Kugl.Transition
         private IEnumerator OpenSceneAsync( SceneParameterBase param )
         {
             var sceneObject = FindObjectOfType< SceneBase >();
-
+            
             if ( sceneObject != null )
             {
                 yield return sceneObject.LoadScene( param );
 
                 yield return sceneObject.OpenScene( param );
+
             }
 
+            // 現在のシーンを保持
+            currentScene = sceneObject;
             yield break;
         }
+
+        /// <summary>
+        /// シーンロード時の初期スクリーンを開始します。
+        /// </summary>
+        /// <param name="param">シーンのパラメータ</param>
+        private IEnumerator StartScreenAsync( SceneParameterBase param )
+        {
+            var screenName = "";
+
+            // パラメータに設定されていた場合はそちらを優先
+            if ( param.nextScreenType != null )
+            {
+                screenName = param.nextScreenType.Name;
+            }
+            else
+            {
+                screenName = currentScene.Setting.defaultStartScreenName;
+            }
+
+            // シーン名が取得できなければ終了
+            if( string.IsNullOrEmpty( screenName ) )
+            {
+                yield break;
+            }
+
+            yield return TransitionScreenAsync( screenName, param.nextScreenParam );
+        }
+
+
+
+        #endregion
     }
 
 }

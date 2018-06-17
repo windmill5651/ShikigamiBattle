@@ -22,43 +22,41 @@ namespace Kugl.Transition.Screen
         /// <summary>
         /// スクリーンをロードします。
         /// </summary>
-        public IEnumerator LoadScreen()
+        public IEnumerator LoadScreen(  ScreenParameterBase param )
         {
-            yield return OnLoadScreen();
+            yield return OnLoadScreen( param );
         }
 
         /// <summary>
         /// スクリーンを開きます。
         /// </summary>
-        public IEnumerator OpenScreen()
+        public IEnumerator OpenScreen( ScreenParameterBase param )
         {
-            yield return OnOpenScreen();
+            yield return OnOpenScreen( param );
         }
 
         /// <summary>
         /// スクリーンを閉じます。
         /// </summary>
-        /// <returns></returns>
-        public IEnumerator CloseScreen()
+        public IEnumerator CloseScreen( ScreenParameterBase param )
         {
-            yield return OnCloseScreen();
+            yield return OnCloseScreen( param );
         }
 
         /// <summary>
         /// スクリーンがロードされる時の処理です。
         /// </summary>
-        protected abstract IEnumerator OnLoadScreen();
+        protected abstract IEnumerator OnLoadScreen( ScreenParameterBase param );
 
         /// <summary>
         /// スクリーンが開かれる時の処理です。
         /// </summary>
-        protected abstract IEnumerator OnOpenScreen();
+        protected abstract IEnumerator OnOpenScreen( ScreenParameterBase param );
 
         /// <summary>
         /// スクリーンが閉じられる時の処理です。
         /// </summary>
-        /// <returns></returns>
-        protected abstract IEnumerator OnCloseScreen();
+        protected abstract IEnumerator OnCloseScreen( ScreenParameterBase param );
        
         #endregion
 

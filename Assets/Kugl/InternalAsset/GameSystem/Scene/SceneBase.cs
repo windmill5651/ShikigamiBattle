@@ -16,6 +16,30 @@ namespace Kugl.Transition.Scene
     public abstract class SceneBase : MonoBehaviour
     {
 
+        #region インスペクター設定フィールド
+
+        /// <summary>
+        /// シーンの設定です。
+        /// </summary>
+        [ SerializeField ]
+        private SceneSetting setting;
+
+        #endregion
+
+        
+        #region フィールド/プロパティ
+
+        /// <summary>
+        /// シーンの設定です。
+        /// </summary>
+        public SceneSetting Setting
+        {
+            get { return setting; }
+        }
+
+        #endregion
+
+
         #region メソッド
 
         /// <summary>

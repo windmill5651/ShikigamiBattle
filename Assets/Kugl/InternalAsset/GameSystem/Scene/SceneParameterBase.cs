@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using Kugl.Transition.Screen;
 
 /// <summary>
 /// Kuglのトランジションシステムの名前空間です。
@@ -25,6 +24,16 @@ namespace Kugl.Transition.Scene
         /// 履歴を残すか
         /// </summary>
         public bool isPushHistory = true;
+
+        /// <summary>
+        /// 次のスクリーンのタイプです。
+        /// </summary>
+        public Type nextScreenType = null;
+
+        /// <summary>
+        /// 次のスクリーンのパラメータです。
+        /// </summary>
+        public ScreenParameterBase nextScreenParam = null;
 
     }
 
