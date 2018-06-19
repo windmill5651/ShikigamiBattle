@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Kugl.Transition;
+using Kugl.Transition.Screen;
+using System;
 
-public class TestScreenA : MonoBehaviour {
+public class TestScreenA : ScreenBase {
 
 	// Use this for initialization
 	void Start () {
@@ -17,6 +19,21 @@ public class TestScreenA : MonoBehaviour {
 
     public void OnPush()
     {
-        StartCoroutine( TransitionSystem.Instance.TransitionScreenAsync( "TestSceneB" ) );
+        TransitionSystem.Instance.TransitionScreen<TestScreenB>();
+    }
+
+    protected override IEnumerator OnLoadScreen( ScreenParameterBase param )
+    {
+        return null;
+    }
+
+    protected override IEnumerator OnOpenScreen( ScreenParameterBase param )
+    {
+        return null;
+    }
+
+    protected override IEnumerator OnCloseScreen( ScreenParameterBase param )
+    {
+        return null;
     }
 }

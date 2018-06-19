@@ -24,11 +24,6 @@ namespace Kugl.Transition
         /// </summary>
         private ScreenBase currentScreen;
         
-        /// <summary>
-        /// スクリーンの履歴のリストです。
-        /// </summary>
-        private List< ScreenBase > screenHistoryList;
-
         #endregion
 
 
@@ -39,7 +34,6 @@ namespace Kugl.Transition
         /// </summary>
         private void InitializeScreenFunc()
         {
-            screenHistoryList = new List< ScreenBase >();
             currentScreen = null;
         }
 
@@ -63,7 +57,9 @@ namespace Kugl.Transition
 
             // 未使用アセットをアンロード
             var unloadRequest = Resources.UnloadUnusedAssets();
-            while( !unloadRequest.isDone ) { yield return null; }
+            while( !unloadRequest.isDone ) {
+                yield return null;
+            }
         }
 
         /// <summary>
@@ -78,7 +74,7 @@ namespace Kugl.Transition
 
             if ( cachedScreenObj != null )
             {
-                screen = cachedScreenObj.GetComponent<ScreenBase>();
+                screen = cachedScreenObj.GetComponent< ScreenBase >();
             }
             else
             {
@@ -92,14 +88,13 @@ namespace Kugl.Transition
                 var screenResource = screenLoadRequest.asset as GameObject;
                 var screenObject = Instantiate( screenResource, currentScene.Setting.screenRoot );
 
-                screen = screenObject.GetComponent<ScreenBase>();
+                screen = screenObject.GetComponent< ScreenBase >();
 
             }
 
             yield return screen.LoadScreen( param );
 
             currentScreen = screen;
-            screenHistoryList.Add( currentScreen );
 
             yield break;
         }

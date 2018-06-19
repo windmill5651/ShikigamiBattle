@@ -33,6 +33,13 @@ namespace Kugl.Transition
         #region メソッド
 
         /// <summary>
+        /// シーン機能の初期化です。
+        /// </summary>
+        private void InitializeSceneFunction()
+        {
+        }
+
+        /// <summary>
         /// シーンを非同期でアンロードします。
         /// </summary>
         private IEnumerator UnloadSceneAsync()
@@ -154,8 +161,6 @@ namespace Kugl.Transition
 
             yield return TransitionScreenAsync( screenName, param.nextScreenParam );
         }
-
-
 
         #endregion
     }

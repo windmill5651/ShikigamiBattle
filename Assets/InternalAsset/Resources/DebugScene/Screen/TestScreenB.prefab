@@ -36,6 +36,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224753073140723786}
+  - component: {fileID: 114592786693360628}
   m_Layer: 5
   m_Name: TestScreenB
   m_TagString: Untagged
@@ -43,6 +44,17 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114592786693360628
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1558578361386708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f59c25f960d9ed43be3f2625d3bd018, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114662604847424102
 MonoBehaviour:
   m_ObjectHideFlags: 1

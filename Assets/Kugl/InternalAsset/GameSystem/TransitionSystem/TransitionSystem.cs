@@ -35,21 +35,6 @@ namespace Kugl.Transition
 
         #region フィールド/プロパティ
 
-        /// <summary>
-        /// 現在のシーン名です。
-        /// </summary>
-        private string currentSceneName = "";
-
-        /// <summary>
-        /// シーンの履歴です。
-        /// </summary>
-        private Stack< string > sceneHistroyStack;
-    
-        /// <summary>
-        /// スクリーンの履歴です。
-        /// </summary>
-        private Dictionary< string, Stack< string > > screenHistoryStack;
-
         #endregion
 
 
@@ -65,22 +50,23 @@ namespace Kugl.Transition
         }
 
         /// <summary>
-        /// シーン機能の初期化です。
-        /// </summary>
-        private void InitializeSceneFunction()
-        {
-            sceneHistroyStack = new Stack< string >();
-        }
-
-
-        /// <summary>
         /// シーンを遷移させます。
         /// </summary>
         /// <typeparam name="Scene">シーンの型です。</typeparam>
         /// <param name="param">シーンのパラメータです。</param>
         public void TransitionScene< Scene >( SceneParameterBase param = null ) where Scene : SceneBase
         {
-            TransitionScene( typeof( Scene ).Name, param );
+            StartCoroutine( TransitionSceneAsync< Scene >( param ) );
+        }
+
+
+        /// <summary>
+        /// シーンを変更します。
+        /// </summary>
+        /// <param name="sceneName">シーン名</param>
+        public void TransitionScene( string sceneName, SceneParameterBase param = null )
+        {
+            StartCoroutine( TransitionSceneAsync( sceneName, param ) );
         }
 
         /// <summary>
@@ -91,15 +77,6 @@ namespace Kugl.Transition
         public IEnumerator TransitionSceneAsync< Scene >( SceneParameterBase param = null ) where Scene : SceneBase
         {
             yield return TransitionSceneAsync( typeof( Scene ).Name, param );
-        }
-
-        /// <summary>
-        /// シーンを変更します。
-        /// </summary>
-        /// <param name="sceneName">シーン名</param>
-        public void TransitionScene( string sceneName, SceneParameterBase param = null )
-        {
-            StartCoroutine( TransitionSceneAsync( sceneName, param ) );
         }
 
         /// <summary>
@@ -143,16 +120,46 @@ namespace Kugl.Transition
                 {
                     if ( c.Exception != null )
                     {
-                        // 例外処理
+                        Debug.Log( c.Exception.Message );
                     }
 
-                });
+                } );
 
             yield return transition;
         }
 
         /// <summary>
         /// スクリーンを遷移させます。
+        /// </summary>
+        /// <param name="screenName">スクリーン名</param>
+        /// <param name="pram">スクリーンパラメータ</param>
+        public void TransitionScreen( string screenName, ScreenParameterBase param = null )
+        {
+            StartCoroutine( TransitionScreenAsync( screenName, param ) );
+        }
+
+        /// <summary>
+        /// スクリーンを遷移させます。
+        /// </summary>
+        /// <typeparam name="Screen">スクリーンの型</typeparam>
+        /// <param name="param">パラメータ</param>
+        public void TransitionScreen< Screen >( ScreenParameterBase param = null )
+        {
+            StartCoroutine( TransitionScreenAsync< Screen >( param ) );
+        }
+
+        /// <summary>
+        /// スクリーンを非同期で遷移します。
+        /// </summary>
+        /// <typeparam name="Screen">スクリーンの型</typeparam>
+        /// <param name="param">スクリーン遷移パラメータ</param>
+        public IEnumerator TransitionScreenAsync< Screen >( ScreenParameterBase param = null )
+        {
+            yield return TransitionScreenAsync( typeof( Screen ).Name, param );
+        }
+
+        /// <summary>
+        /// 非同期でスクリーンを遷移させます。
         /// </summary>
         /// <param name="screenName">スクリーンの名前です</param>
         /// <param name="param">パラメータ</param>
@@ -175,6 +182,13 @@ namespace Kugl.Transition
                 .Continue( ()=>
                 {
                     return OpenScreenAsync( param );
+                } )
+                .OnComplete( ( c )=>
+                {
+                    if ( c.Exception != null )
+                    { 
+                        Debug.Log( c.Exception.Message );
+                    }
                 } );
 
             yield return transition;
