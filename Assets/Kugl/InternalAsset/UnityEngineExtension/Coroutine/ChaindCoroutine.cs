@@ -155,6 +155,7 @@ namespace UnityEngine.Extensions
             }
             catch( Exception e )
             {
+                Debug.LogError( "ChainedCoroutine:" + e.Message );
                 exceptions.AddException( e );
             }
 

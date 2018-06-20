@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if GAME_DEBUG
+using Shikigami.Debug;
+#endif
+
 /// <summary>
 /// ゲームのシステム根幹の名前空間です。
 /// </summary>
@@ -17,12 +21,21 @@ namespace Game.System
     /// </summary>
     public class SystemInitializer : MonoBehaviour
     {
-        #region インスペクター設定フィールド
+
+        #region 定数
 
         /// <summary>
-        /// リリース時のスタートシーンです。
+        /// デフォルトで設定される開始シーンです。
         /// </summary>
-        [ SerializeField ]
+        private const string DEFAULT_START_SCENE = "TitleScene";
+
+        #endregion
+
+        #region フィールド/プロパティ
+
+        /// <summary>
+        /// 開始シーン名です。
+        /// </summary>
         private string startSceneName = "";
 
         #endregion
@@ -44,9 +57,9 @@ namespace Game.System
         private IEnumerator InitSystem()
         {
             #if GAME_DEBUG
-            DebugSetting();
+            SetDebugSetting();
             #else
-            ReleaseSetting();
+            SetReleaseSetting();
             #endif
 
             // トランジションシステムの初期化
@@ -56,21 +69,28 @@ namespace Game.System
             yield return TransitionSystem.Instance.TransitionSceneAsync( startSceneName, null );
         }
 
+        #if GAME_DEBUG
         /// <summary>
         /// デバッグ用の設定です。
         /// </summary>
-        private void DebugSetting()
+        private void SetDebugSetting()
         {
             Debug.SetLogEnabled( true );
+            startSceneName = DebugSetting.StartSceneDebug;
         }
+
+        #else
 
         /// <summary>
         /// リリース用の設定です。
         /// </summary>
-        private void ReleaseSetting()
+        private void SetReleaseSetting()
         {
             Debug.SetLogEnabled( false );
+            startSceneName = DEFAULT_START_SCENE;
         }
+
+        #endif
 
         #endregion
 
