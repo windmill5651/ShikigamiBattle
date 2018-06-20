@@ -80,7 +80,7 @@ namespace Kugl.Transition
             {
                 // スクリーンのロードリクエストをします。
                 var sceneName = currentScene.GetType().Name;
-                var screenLoadRequest = Resources.LoadAsync<GameObject>( currentScene.Setting.resourceRootPath + "/" + screenName );
+                var screenLoadRequest = Resources.LoadAsync< GameObject >( currentScene.Setting.resourceRootPath + "/" + screenName );
 
                 while ( !screenLoadRequest.isDone ) { yield return null; }
 

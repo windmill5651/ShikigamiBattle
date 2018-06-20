@@ -23,13 +23,7 @@ namespace Game.System
         /// リリース時のスタートシーンです。
         /// </summary>
         [ SerializeField ]
-        private string startSceneProduct = "";
-
-        /// <summary>
-        /// デバッグ時のスタートシーンです。
-        /// </summary>
-        [ SerializeField ]
-        private string startSceneDebug = "";
+        private string startSceneName = "";
 
         #endregion
 
@@ -49,15 +43,10 @@ namespace Game.System
         /// </summary>
         private IEnumerator InitSystem()
         {
-
-            var startSceneName = "";
-
             #if GAME_DEBUG
-            Debug.SetLogEnabled( true );
-            startSceneName = startSceneDebug;
-            #elif GAME_PRODUCT
-            startSceneName = startSceneProduct;
-            Debug.SetLogEnabled( false );
+            DebugSetting();
+            #else
+            ReleaseSetting();
             #endif
 
             // トランジションシステムの初期化
@@ -72,6 +61,7 @@ namespace Game.System
         /// </summary>
         private void DebugSetting()
         {
+            Debug.SetLogEnabled( true );
         }
 
         /// <summary>
@@ -79,6 +69,7 @@ namespace Game.System
         /// </summary>
         private void ReleaseSetting()
         {
+            Debug.SetLogEnabled( false );
         }
 
         #endregion
