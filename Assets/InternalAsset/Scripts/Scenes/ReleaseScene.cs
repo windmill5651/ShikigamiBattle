@@ -1,25 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Kugl.Transition;
+using Kugl.Transition.Scene;
 using System;
 
 public class ReleaseScene : SceneBase {
 
 
-    public override IEnumerator OnCloseScene()
+    protected override IEnumerator OnCloseScene()
     {
         Debug.Log( "OnCloseScene" );
         yield break;
     }
 
-    public override IEnumerator OnLoadScene( SceneParameterBase param )
+    protected override IEnumerator OnLoadScene( SceneParameterBase param )
     {
         Debug.Log( "OnLoadScene" );
         yield break;
     }
 
-    public override IEnumerator OnOpenScene( SceneParameterBase param )
+    protected override IEnumerator OnOpenScene( SceneParameterBase param )
     {
         Debug.Log( "OnOpenScene" );
         yield break;

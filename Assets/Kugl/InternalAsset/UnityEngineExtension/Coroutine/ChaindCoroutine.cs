@@ -35,6 +35,23 @@ namespace UnityEngine.Extensions
         }
 
         /// <summary>
+        /// タスク中に発生したExceptionです。
+        /// </summary>
+        public CombinedException Exception
+        {
+            get {
+                var returnException = exceptions;
+
+                if ( ( exceptions == null ) || ( exceptions.ExceptionCount == 0 ) )
+                {
+                    return null;
+                }
+
+                return returnException;
+            }
+        }
+
+        /// <summary>
         /// コルーチンのキューです。
         /// </summary>
         private Queue< SafeCoroutine > coroutineQueue = null;
@@ -47,7 +64,7 @@ namespace UnityEngine.Extensions
         /// <summary>
         /// 完了時処理です。
         /// </summary>
-        private Action onComplete = null;
+        private Action< ChaindCoroutine > onComplete = null;
 
         /// <summary>
         /// 実行中に発生したエラーです。
@@ -95,7 +112,7 @@ namespace UnityEngine.Extensions
         /// <returns>指定した処理をつなげた自身</returns>
         public ChaindCoroutine OnException( Action< Exception > onException )
         {
-            OnComplete( () =>
+            OnComplete( ( c ) =>
             {
                 if ( exceptions.ExceptionCount != 0 )
                 {
@@ -111,7 +128,7 @@ namespace UnityEngine.Extensions
         /// </summary>
         /// <param name="onComplete">コルーチンが完了した時の処理</param>
         /// <returns>処理をつなげた自身</returns>
-        public ChaindCoroutine OnComplete( Action onComplete )
+        public ChaindCoroutine OnComplete( Action< ChaindCoroutine > onComplete )
         {
             this.onComplete += onComplete;
             return this;
@@ -148,7 +165,7 @@ namespace UnityEngine.Extensions
                     // キューのカウントがなくなっていたら完了
                     if ( onComplete != null )
                     {
-                        onComplete();
+                        onComplete( this );
                     }
                 }
                 else

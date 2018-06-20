@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Kuglトランジションのシステム名前空間です。
 /// </summary>
-namespace Kugl.Transition
+namespace Kugl.Transition.Scene
 {
 
     /// <summary>
@@ -15,6 +15,30 @@ namespace Kugl.Transition
     /// </summary>
     public abstract class SceneBase : MonoBehaviour
     {
+
+        #region インスペクター設定フィールド
+
+        /// <summary>
+        /// シーンの設定です。
+        /// </summary>
+        [ SerializeField ]
+        private SceneSetting setting;
+
+        #endregion
+
+        
+        #region フィールド/プロパティ
+
+        /// <summary>
+        /// シーンの設定です。
+        /// </summary>
+        public SceneSetting Setting
+        {
+            get { return setting; }
+        }
+
+        #endregion
+
 
         #region メソッド
 
@@ -45,18 +69,18 @@ namespace Kugl.Transition
         /// <summary>
         /// シーンをロードするときの処理です。
         /// </summary>
-        public abstract IEnumerator OnLoadScene( SceneParameterBase param );
+        protected abstract IEnumerator OnLoadScene( SceneParameterBase param );
 
         /// <summary>
         /// シーンを開くときの処理です。
         /// </summary>
-        public abstract IEnumerator OnOpenScene( SceneParameterBase param );
+        protected abstract IEnumerator OnOpenScene( SceneParameterBase param );
 
         /// <summary>
         /// シーンをクローズします。
         /// </summary>
         /// <returns></returns>
-        public abstract IEnumerator OnCloseScene();
+        protected abstract IEnumerator OnCloseScene();
 
         #endregion
 
