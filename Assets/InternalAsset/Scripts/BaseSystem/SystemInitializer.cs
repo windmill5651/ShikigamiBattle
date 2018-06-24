@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 #if GAME_DEBUG
-using Shikigami.Debug;
+using Shikigami.GameDebug;
 #endif
 
 /// <summary>

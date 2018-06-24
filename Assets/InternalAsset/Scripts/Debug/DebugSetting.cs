@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// シキガミのデバッグ名前空間です。
 /// </summary>
-namespace Shikigami.Debug
+namespace Shikigami.GameDebug
 {
 
     /// <summary>

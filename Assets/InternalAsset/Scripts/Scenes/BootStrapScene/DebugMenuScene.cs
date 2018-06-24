@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// シキガミのデバッグ名前空間です。
 /// </summary>
-namespace Shikigami.Debug
+namespace Shikigami.GameDebug
 {
     /// <summary>
     /// 
