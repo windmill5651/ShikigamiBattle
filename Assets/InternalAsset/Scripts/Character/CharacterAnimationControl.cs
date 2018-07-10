@@ -53,6 +53,15 @@ namespace Shikigami.Game.Character
         }
 
         /// <summary>
+        /// ジャンプ速度をセットします。
+        /// </summary>
+        /// <param name="jumpSpeed">ジャンプ速度</param>
+        public void SetJumpSpeed( float jumpSpeed )
+        {
+            animator.SetFloat( "JumpSpeed", jumpSpeed );
+        }
+
+        /// <summary>
         /// 攻撃のトリガーを設定します。
         /// </summary>
         public void SetAttackTrigger()

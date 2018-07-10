@@ -28,7 +28,7 @@ namespace Shikigami.Game.Character
         /// 移動方向です。
         /// </summary>
         private Vector3 moveDirVec = new Vector3();
-
+    
         #endregion
 
 
@@ -52,13 +52,16 @@ namespace Shikigami.Game.Character
 
             moveDir.y = 0;
 
+            // 移動ベクトルのスカラ値を取得
+            //this.moveSqrMag = moveDir.sqrMagnitude;
+
+            // 移動ベクトル
             if ( moveDir.sqrMagnitude > 1.0f )
             {
                 moveDir.Normalize();
             }
 
             Move( moveDir );
-
         }
 
         // Update is called once per frame
@@ -68,6 +71,8 @@ namespace Shikigami.Game.Character
             {
                 Attack();
             }
+
+            InputJump( Input.GetButton( "Jump" ) );
         }
 
         #endregion

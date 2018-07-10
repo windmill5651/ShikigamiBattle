@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Kugl.CSExtensions;
 
 /// <summary>
 /// シキガミのゲームキャラクターの名前空間です。
@@ -14,6 +15,7 @@ namespace Shikigami.Game.Character
     [ RequireComponent( typeof( Rigidbody ) ) ]
     public class CharacterControlBase : MonoBehaviour
     {
+
         #region インスペクター設定フィールド
 
         /// <summary>
@@ -22,11 +24,6 @@ namespace Shikigami.Game.Character
         [ SerializeField ]
         private float speed = 1;
 
-        /// <summary>
-        /// アニメーションをコントローラです。
-        /// </summary>
-        [ SerializeField ]
-        private CharacterAnimationControl animationControl;
 
         #endregion
 
@@ -34,14 +31,32 @@ namespace Shikigami.Game.Character
         #region フィールド/プロパティ
 
         /// <summary>
-        /// 物理挙動のプロパティ
+        /// 物理挙動です
         /// </summary>
         private Rigidbody rigidBody = null;
 
         /// <summary>
-        /// 移動ベクトル
+        /// キャラクターのステートです。
         /// </summary>
-        private Vector3 moveVector = new Vector3();
+        private CharacterState currentState = CharacterState.Idole;
+
+        /// <summary>
+        /// 遷移予定のステートです。
+        /// </summary>
+        private CharacterState nextState = CharacterState.Idole;
+
+        /// <summary>
+        /// 入力のステートです。
+        /// </summary>
+        private InputableState inputState = InputableState.Enable;
+
+        /// <summary>
+        /// パラメータです。
+        /// </summary>
+        private CharacterStateBase.StateParameter param = null;
+
+        private CharacterStateBase[] states = null;
+
 
         #endregion
 
@@ -56,6 +71,18 @@ namespace Shikigami.Game.Character
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
             rigidBody = GetComponent< Rigidbody >();
+
+            // ステートのパラメータを生成
+            param = new CharacterStateBase.StateParameter()
+            {
+                maxSpeed = speed,
+            };
+
+            states = new CharacterStateBase[]
+            {
+                new IdolState( param, OnChangeState ),
+                new MoveState( param, OnChangeState ),
+            };
         }
 
         /// <summary>
@@ -64,7 +91,8 @@ namespace Shikigami.Game.Character
         /// <param name="moveDirection">移動方向のベクトルです。</param>
         public void Move( Vector3 moveDirection )
         {
-            moveVector = moveDirection * speed;
+            Debug.Log( "Move" );
+            states[ ( int )currentState ].InputMove( moveDirection );
         }
 
         /// <summary>
@@ -72,7 +100,19 @@ namespace Shikigami.Game.Character
         /// </summary>
         public void Attack()
         {
-            animationControl.SetAttackTrigger();
+            Debug.Log( "Attack" );
+
+            states[ ( int )currentState ].InputAttack();
+        }
+
+        /// <summary>
+        /// ジャンプ入力を行います。
+        /// </summary>
+        public void InputJump( bool isInput )
+        {
+            Debug.Log( "Jump" );
+
+            states[ ( int )currentState ].InputJump( isInput );
         }
 
         /// <summary>
@@ -80,18 +120,26 @@ namespace Shikigami.Game.Character
         /// </summary>
         protected void FixedUpdate()
         {
-            // velocity移動
-            rigidBody.velocity = moveVector * Time.fixedDeltaTime;
+            Debug.Log( "FixedUpdate" );
+            states[ ( int )currentState ].OnUpdate( rigidBody );
+        }
 
-            // 移動中のみ方向を変える
-            if ( moveVector.sqrMagnitude > 0 )
+        /// <summary>
+        /// Update処理後の定期更新処理です。
+        /// </summary>
+        private void LateUpdate()
+        {
+            Debug.Log( "LateUpdate" );
+            if( currentState != nextState )
             {
-                var lookDir = moveVector;
-                lookDir.y = 0;
-                rigidBody.rotation = Quaternion.LookRotation( moveVector );
+                Debug.Log( nextState );
+                currentState = nextState;
             }
+        }
 
-            animationControl.SetMoveSpeed( moveVector.magnitude );
+        private void OnChangeState( CharacterState nextState )
+        {
+            this.nextState = nextState;
         }
 
         #endregion
