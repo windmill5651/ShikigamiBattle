@@ -7,6 +7,10 @@ using UnityEngine;
 namespace Shikigami.Game.Character
 {
 
+    /// <summary>
+    ///  IdolState
+    ///  キャラクターの立ちステートです。
+    /// </summary>
     public class IdolState : CharacterStateBase
     {
 
@@ -16,8 +20,9 @@ namespace Shikigami.Game.Character
         /// コンストラクタです。
         /// </summary>
         /// <param name="parameter">ステートのパラメータです。</param>
+        /// <param name="animControl">アニメーションのコントローラです</param>
         /// <param name="onChange">ステート変更時の処理です。</param>
-        public IdolState( StateParameter parameter,Action< CharacterState > onChange ) : base( parameter, onChange ) { }
+        public IdolState( StateParameter parameter, CharacterAnimationControl animControl, Action< CharacterState > onChange ) : base( parameter, animControl, onChange ) { }
 
         /// <summary>
         /// 攻撃入力です。
@@ -42,25 +47,17 @@ namespace Shikigami.Game.Character
         }
 
         /// <summary>
-        /// 移動です。
+        /// 定期更新処理です。
         /// </summary>
-        /// <param name="inputVec">入力ベクトル</param>
-        /// <returns>遷移後ステート</returns>
-        public override void InputMove( Vector3 inputVec )
+        /// <param name="rigid">キャラクターのRigidBodyです。</param>
+        /// <returns>遷移後ステートです。</returns>
+        public override void OnUpdate( Rigidbody rigid )
         {
-            // 入力されたらステート移行
-            if ( inputVec.sqrMagnitude > 0 )
+            if( stateParam.CurrentInputVec.sqrMagnitude > 0 )
             {
                 ChangeState( CharacterState.Move );
             }
         }
-
-        /// <summary>
-        /// 定期更新処理です。
-        /// </summary>
-        /// <param name="rigid">キャラクターのBodyです。</param>
-        /// <returns>遷移後ステートです。</returns>
-        public override void OnUpdate( Rigidbody rigid ){}
 
         #endregion
     }

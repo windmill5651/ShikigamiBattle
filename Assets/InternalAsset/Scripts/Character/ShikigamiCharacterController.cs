@@ -13,7 +13,7 @@ namespace Shikigami.Game.Character
     /// Author:Windmill
     /// </summary>
     [ RequireComponent( typeof( Rigidbody ) ) ]
-    public class CharacterControlBase : MonoBehaviour
+    public class ShikigamiCharacterController : MonoBehaviour
     {
 
         #region インスペクター設定フィールド
@@ -54,7 +54,15 @@ namespace Shikigami.Game.Character
         /// パラメータです。
         /// </summary>
         private CharacterStateBase.StateParameter param = null;
+ 
+        /// <summary>
+        /// キャラクターのアニメーションをコントロールします。
+        /// </summary>
+        private CharacterAnimationControl animController;
 
+        /// <summary>
+        /// キャラクターのステート配列です。
+        /// </summary>
         private CharacterStateBase[] states = null;
 
 
@@ -78,11 +86,7 @@ namespace Shikigami.Game.Character
                 maxSpeed = speed,
             };
 
-            states = new CharacterStateBase[]
-            {
-                new IdolState( param, OnChangeState ),
-                new MoveState( param, OnChangeState ),
-            };
+            states =  CharacterStateBase.CreateStateMachine( param, null, OnChangeState );
         }
 
         /// <summary>
@@ -91,7 +95,6 @@ namespace Shikigami.Game.Character
         /// <param name="moveDirection">移動方向のベクトルです。</param>
         public void Move( Vector3 moveDirection )
         {
-            Debug.Log( "Move" );
             states[ ( int )currentState ].InputMove( moveDirection );
         }
 
@@ -100,8 +103,6 @@ namespace Shikigami.Game.Character
         /// </summary>
         public void Attack()
         {
-            Debug.Log( "Attack" );
-
             states[ ( int )currentState ].InputAttack();
         }
 
@@ -110,8 +111,6 @@ namespace Shikigami.Game.Character
         /// </summary>
         public void InputJump( bool isInput )
         {
-            Debug.Log( "Jump" );
-
             states[ ( int )currentState ].InputJump( isInput );
         }
 
@@ -120,7 +119,6 @@ namespace Shikigami.Game.Character
         /// </summary>
         protected void FixedUpdate()
         {
-            Debug.Log( "FixedUpdate" );
             states[ ( int )currentState ].OnUpdate( rigidBody );
         }
 
@@ -129,14 +127,16 @@ namespace Shikigami.Game.Character
         /// </summary>
         private void LateUpdate()
         {
-            Debug.Log( "LateUpdate" );
             if( currentState != nextState )
             {
-                Debug.Log( nextState );
                 currentState = nextState;
             }
         }
 
+        /// <summary>
+        /// ステートを変更します。
+        /// </summary>
+        /// <param name="nextState"></param>
         private void OnChangeState( CharacterState nextState )
         {
             this.nextState = nextState;

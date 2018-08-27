@@ -17,12 +17,20 @@ namespace Shikigami.Game.Character
 
         #region インナークラス
 
+        /// <summary>
+        /// ステートのパラメータです。
+        /// </summary>
         public class StateParameter
         {
             /// <summary>
             /// 最大速度です。
             /// </summary>
             public float maxSpeed = 0.0f;
+
+            /// <summary>
+            /// 現在の入力ベクトルです。
+            /// </summary>
+            public Vector3 CurrentInputVec { get; set; }
 
             /// <summary>
             /// 現在の移動ベクトルです。
@@ -37,11 +45,21 @@ namespace Shikigami.Game.Character
             /// <summary>
             /// 移動速度倍率です。
             /// </summary>
-            public float moveSqrMag { get; set; }
+            public float MoveMag { get; set; }
+        
+
+            /// <summary>
+            /// 移動入力がされているか
+            /// </summary>
+            public bool IsInputMove
+            {
+                get { return ( CurrentInputVec.sqrMagnitude > 0 );   }
+            }
 
         }
 
         #endregion
+
 
         #region フィールド/プロパティ
 
@@ -49,6 +67,11 @@ namespace Shikigami.Game.Character
         /// ステートのパラメータです。
         /// </summary>
         protected StateParameter stateParam;
+   
+        /// <summary>
+        /// アニメーションのコントロール
+        /// </summary>
+        protected CharacterAnimationControl animationControl;
 
         /// <summary>
         /// ステート変更時処理です。
@@ -60,14 +83,26 @@ namespace Shikigami.Game.Character
 
         #region メソッド
 
+        public static CharacterStateBase[] CreateStateMachine( StateParameter parameter, CharacterAnimationControl control, Action< CharacterState > onChange )
+        {
+            return new CharacterStateBase[]
+            {
+                new IdolState( parameter, control, onChange ),
+                new MoveState( parameter, control, onChange ),
+                new AttackState( parameter, control, onChange ),
+            };
+        }
+
         /// <summary>
         /// コンストラクタです。
         /// </summary>
         /// <param name="parameter">ステートのパラメータです。</param>
+        /// <param name="animControl">アニメーションのコントローラです。</param>
         /// <param name="onChange">ステート変更時の処理です。</param>
-        public CharacterStateBase( StateParameter parameter, Action< CharacterState > onChange )
+        public CharacterStateBase( StateParameter parameter, CharacterAnimationControl animControl, Action< CharacterState > onChange )
         {
             stateParam = parameter;
+            animationControl = animControl;
             onChangeState = onChange;
         }
 
@@ -83,15 +118,30 @@ namespace Shikigami.Game.Character
             }
         }
 
+        /// <summary>
+        /// 移動入力をします。
+        /// </summary>
+        /// <param name="inputVec">移動入力値です</param>
+        public void InputMove( Vector3 inputVec )
+        {
+            var inputVector = new Vector3();
+            // ベクトルのスカラ値が1.0を超えていたらノーマライズ
+            if ( inputVec.sqrMagnitude <= 1.0f )
+            {
+                inputVector = inputVec;
+            }
+            else
+            {
+                inputVector = inputVec.normalized;
+            }
+
+            stateParam.CurrentInputVec = inputVector;
+        }
+
         #endregion
 
-        #region 抽象メソッド
 
-        /// <summary>
-        /// キャラクターの移動入力です。
-        /// </summary>
-        /// <param name="inputVec">入力ベクトル</param>
-        public abstract void InputMove( Vector3 inputVec );
+        #region 抽象メソッド
 
         /// <summary>
         /// 攻撃入力です。

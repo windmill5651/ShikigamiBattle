@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Kuglのシステム名前空間です。
@@ -22,7 +21,6 @@ namespace Kugl.BaseSystem
         /// </summary>
         [ SerializeField ]
         private GameObject baseSystemObj = null;
-
 
         #endregion
 

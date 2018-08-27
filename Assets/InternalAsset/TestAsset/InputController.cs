@@ -1,5 +1,5 @@
 ﻿using Game.Library.Camera;
-using Shikigami.Game.Character;
+using Shikigami.Game;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

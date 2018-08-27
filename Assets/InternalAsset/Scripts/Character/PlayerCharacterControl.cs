@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Shikigami.Game.Character;
 
 /// <summary>
-/// シキガミの名前空間です。
+/// シキガミのゲーム名前空間です。
 /// </summary>
-namespace Shikigami.Game.Character
+namespace Shikigami.Game
 {
 
     /// <summary>
@@ -14,7 +13,7 @@ namespace Shikigami.Game.Character
     ///  
     /// Author:Windmill
     /// </summary>
-    public class PlayerCharacterControl : CharacterControlBase
+    public class PlayerCharacterControl : MonoBehaviour
     {
         #region フィールド/プロパティ
 
@@ -28,16 +27,24 @@ namespace Shikigami.Game.Character
         /// 移動方向です。
         /// </summary>
         private Vector3 moveDirVec = new Vector3();
+
+        /// <summary>
+        /// キャラクターをコントロールするクラスです。
+        /// </summary>
+        private ShikigamiCharacterController character;
     
         #endregion
 
 
         #region メソッド
 
-        // Use this for initialization
-        protected new void Start()
+        /// <summary>
+        /// セットアップを行います
+        /// </summary>
+        /// <param name="character">操作するキャラクター</param>
+        public void Setup( ShikigamiCharacterController character )
         {
-            base.Start();
+            this.character = character;
         }
 
         /// <summary>
@@ -61,7 +68,7 @@ namespace Shikigami.Game.Character
                 moveDir.Normalize();
             }
 
-            Move( moveDir );
+            character.Move( moveDir );
         }
 
         // Update is called once per frame
@@ -69,10 +76,10 @@ namespace Shikigami.Game.Character
         {
             if( Input.GetButtonDown( "Fire1" ) )
             {
-                Attack();
+                character.Attack();
             }
 
-            InputJump( Input.GetButton( "Jump" ) );
+            character.InputJump( Input.GetButton( "Jump" ) );
         }
 
         #endregion
