@@ -26,9 +26,6 @@ namespace Game.Util.InputControl
         [ SerializeField ]
         private CameraTarget target = null;
 
-        [ SerializeField ]
-        private PlayerCharacterControl characterControl = null;
-
         /// <summary>
         /// カメラターゲットのパラメータです。
         /// </summary>
@@ -47,7 +44,7 @@ namespace Game.Util.InputControl
         void Update()
         {
             target.Move( new Vector3( Input.GetAxis( "Mouse X" ), Input.GetAxis( "Mouse Y" ), 0 ) );
-            characterControl.MovePlayer( new Vector3( Input.GetAxis( "Horizontal" ), 0, Input.GetAxis( "Vertical" ) ) );
+            //MovePlayer( new Vector3( Input.GetAxis( "Horizontal" ), 0, Input.GetAxis( "Vertical" ) ) );
         }
     }
 

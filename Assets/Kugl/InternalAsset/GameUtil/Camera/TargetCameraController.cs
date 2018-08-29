@@ -77,13 +77,6 @@ namespace Game.Library.Camera
         #region メソッド
 
         /// <summary>
-        /// 初期化です。
-        /// </summary>
-        void Start()
-        {
-        }
-
-        /// <summary>
         /// カメラの更新を行います。
         /// </summary>
         private void UpdateCamera()

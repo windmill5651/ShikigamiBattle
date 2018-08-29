@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Kugl.CSExtensions;
+using System.Collections;
 
 /// <summary>
 /// シキガミのゲームキャラクターの名前空間です。
@@ -13,7 +14,7 @@ namespace Shikigami.Game.Character
     /// Author:Windmill
     /// </summary>
     [ RequireComponent( typeof( Rigidbody ) ) ]
-    public class ShikigamiCharacterController : MonoBehaviour
+    public class ShikigamiBattleCharacter : MonoBehaviour
     {
 
         #region インスペクター設定フィールド
@@ -23,6 +24,11 @@ namespace Shikigami.Game.Character
         /// </summary>
         [ SerializeField ]
         private float speed = 1;
+
+        /// <summary>
+        /// ベースとなる方向
+        /// </summary>
+        private Transform baseDir = null;
 
 
         #endregion
@@ -51,9 +57,9 @@ namespace Shikigami.Game.Character
         private InputableState inputState = InputableState.Enable;
 
         /// <summary>
-        /// パラメータです。
+        /// ステートマシンパラメータです。
         /// </summary>
-        private CharacterStateBase.StateParameter param = null;
+        private CharacterStateBase.StateParameter stateParam = null;
  
         /// <summary>
         /// キャラクターのアニメーションをコントロールします。
@@ -72,30 +78,79 @@ namespace Shikigami.Game.Character
         #region メソッド
 
         /// <summary>
-        /// 初期化処理です。
+        /// 非同期でセットアップを行います
         /// </summary>
-        protected void Start()
+        /// <param name="param">パラメータ</param>
+        public IEnumerator SetupAsync( BattleCharacterParameter param )
         {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
             rigidBody = GetComponent< Rigidbody >();
 
+            yield return SetupModelAsync( param.characterId );
+            
             // ステートのパラメータを生成
-            param = new CharacterStateBase.StateParameter()
+            stateParam = new CharacterStateBase.StateParameter()
             {
                 maxSpeed = speed,
             };
 
-            states =  CharacterStateBase.CreateStateMachine( param, null, OnChangeState );
+            states = CharacterStateBase.CreateStateMachine( stateParam, animController, OnChangeState );
+
+        }
+
+        /// <summary>
+        /// 非同期でモデルをセットアップします
+        /// </summary>
+        /// <param name="characterId">キャラクターID</param>
+        private IEnumerator SetupModelAsync( int characterId )
+        {
+            var modelName = CharacterConst.GetCharacterModelName( characterId );
+            var modelLoadRequest = Resources.LoadAsync< GameObject >( "GameScene/BattleCharacter/" + modelName );
+
+            yield return modelLoadRequest;
+
+            // モデルのロードが出来たらモデルを生成してアニメーションセット
+            if( modelLoadRequest.isDone )
+            {
+                // モデルのインスタンス元を取得
+                var modelSrc = modelLoadRequest.asset as GameObject;
+           
+                // インスタンス化してコンポーネント取得
+                var modelObj = Instantiate( modelSrc );
+                var animationControl = modelObj.GetComponent< CharacterAnimationControl >();
+                
+                // モデル位置を0にする
+                modelObj.transform.SetParent( transform );
+                modelObj.transform.localPosition = Vector3.zero;
+
+                // アニメーションコントローラを設定
+                animController = animationControl;
+            }
+            else
+            {
+                Debug.LogError( "Model is Not Loaded ID:" + characterId );
+            }
+
         }
 
         /// <summary>
         /// キャラクターを移動させます。
         /// </summary>
-        /// <param name="moveDirection">移動方向のベクトルです。</param>
-        public void Move( Vector3 moveDirection )
+        /// <param name="inputDir">入力ベクトルです。</param>
+        public void Move( Vector3 inputDir )
         {
-            states[ ( int )currentState ].InputMove( moveDirection );
+            var forward = baseDir.forward * inputDir.z;
+            var side = baseDir.right * inputDir.x;
+            var moveDir = forward + side;
+            moveDir.y = 0;
+
+            // 移動ベクトル
+            if ( moveDir.sqrMagnitude > 1.0f )
+            {
+                moveDir.Normalize();
+            }
+
+
+            states[ ( int )currentState ].InputMove( inputDir );
         }
 
         /// <summary>
@@ -119,7 +174,10 @@ namespace Shikigami.Game.Character
         /// </summary>
         protected void FixedUpdate()
         {
-            states[ ( int )currentState ].OnUpdate( rigidBody );
+            if ( states != null )
+            {
+                states[ ( int )currentState ].OnUpdate( rigidBody );
+            }
         }
 
         /// <summary>
