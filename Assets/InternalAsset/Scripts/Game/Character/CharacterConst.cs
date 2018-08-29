@@ -48,6 +48,20 @@ namespace Shikigami.Game.Character
     }
 
     /// <summary>
+    ///  CharacterOwner
+    ///  キャラクターの操作をする主です
+    ///  
+    /// Author:Windmill
+    /// </summary>
+    public enum CharacterOwnerType
+    {
+        INVALID,
+        PLAYER,
+        AI,
+        REPLAY,
+    }
+
+    /// <summary>
     ///  CharacterState
     ///  キャラクターのステートです。
     ///  

@@ -45,7 +45,17 @@ namespace Game.Utility
 
         #endregion
 
+
         #region メソッド
+
+        /// <summary>
+        /// このオブジェクトが追いかけるターゲットを設定します。
+        /// </summary>
+        /// <param name="targetTransform">ターゲットのTransform</param>
+        public void SetFollowTarget( Transform targetTransform )
+        {
+            followObject = targetTransform;
+        }
 
         /// <summary>
         /// 固定フレームレートの定期更新処理です。
@@ -69,8 +79,15 @@ namespace Game.Utility
             }
         }
 
+        /// <summary>
+        /// 位置を更新します
+        /// </summary>
         private void UpdatePos()
         {
+            if( followObject == null )
+            {
+                return;
+            }
             // ターゲットの位置を算出し、線形補完で移動
             var targetPos = ( followObject.position + followOffset );
             transform.position = Vector3.Lerp( transform.position, followObject.position, followSpeed * Time.deltaTime );

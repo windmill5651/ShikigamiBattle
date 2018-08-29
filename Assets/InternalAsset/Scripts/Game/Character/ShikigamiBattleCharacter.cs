@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Kugl.CSExtensions;
 using System.Collections;
 
 /// <summary>
@@ -16,6 +15,16 @@ namespace Shikigami.Game.Character
     [ RequireComponent( typeof( Rigidbody ) ) ]
     public class ShikigamiBattleCharacter : MonoBehaviour
     {
+
+        #region 定数値
+
+        /// <summary>
+        /// 無効なオーナーです
+        /// </summary>
+        public const int INVALID_OWNER_NO = -1;
+
+        #endregion
+
 
         #region インスペクター設定フィールド
 
@@ -70,7 +79,47 @@ namespace Shikigami.Game.Character
         /// キャラクターのステート配列です。
         /// </summary>
         private CharacterStateBase[] states = null;
+    
+        /// <summary>
+        /// バトルキャラクターのパラメータです
+        /// </summary>
+        private BattleCharacterParameter characterParam = null;
 
+        /// <summary>
+        /// オーナーの名前です
+        /// </summary>
+        public int OwnerNo
+        {
+            get
+            {
+                var ownerNo = INVALID_OWNER_NO;
+
+                if( characterParam != null )
+                {
+                    ownerNo = characterParam.ownerNo;
+                }
+
+                return ownerNo;
+            }
+        }
+
+        /// <summary>
+        /// オーナーのタイプです
+        /// </summary>
+        public CharacterOwnerType OwnerType
+        {
+            get
+            {
+                var type = CharacterOwnerType.INVALID;
+
+                if( characterParam != null )
+                {
+                    type = characterParam.ownerType;
+                }
+
+                return type;
+            }
+        }
 
         #endregion
 
@@ -85,6 +134,12 @@ namespace Shikigami.Game.Character
         {
             rigidBody = GetComponent< Rigidbody >();
 
+            // キャラクターのパラメータです
+            characterParam = param;
+
+            baseDir = param.baseDir;
+
+            // モデルのセットアップを行います
             yield return SetupModelAsync( param.characterId );
             
             // ステートのパラメータを生成
@@ -94,7 +149,6 @@ namespace Shikigami.Game.Character
             };
 
             states = CharacterStateBase.CreateStateMachine( stateParam, animController, OnChangeState );
-
         }
 
         /// <summary>
@@ -142,7 +196,7 @@ namespace Shikigami.Game.Character
             var side = baseDir.right * inputDir.x;
             var moveDir = forward + side;
             moveDir.y = 0;
-
+            Debug.Log( inputDir );
             // 移動ベクトル
             if ( moveDir.sqrMagnitude > 1.0f )
             {
@@ -202,4 +256,5 @@ namespace Shikigami.Game.Character
 
         #endregion
     }
+
 }

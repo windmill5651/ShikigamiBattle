@@ -59,7 +59,7 @@ namespace Game.Library.Camera
         /// <param name="parameter">パラメータ</param>
         public void Setup( CameraTargetParameter parameter )
         {
-            // パラメータがnullの場合セットアップ出来ないので終了
+            // パラメータがnullの場合はセットアップ不可能
             if( parameter == null )
             {
                 return;
@@ -108,6 +108,11 @@ namespace Game.Library.Camera
         /// </summary>
         private void UpdatePos()
         {
+            // センターがなければ実行不可
+            if( center == null )
+            {
+                return;
+            }
             // 中心位置セット
             var centerPos = center.position;
             centerPos.y += parameter.heightOffset;

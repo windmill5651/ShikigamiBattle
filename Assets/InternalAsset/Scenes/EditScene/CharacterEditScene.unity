@@ -201,7 +201,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 82260356}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94faf5223c1a17e4e8ca98fc6a03ca36, type: 3}
   m_Name: 
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 112882147}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab7afab721f4b62488b231066c9466f2, type: 3}
   m_Name: 
@@ -265,6 +265,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 556786927}
+  - component: {fileID: 556786928}
   m_Layer: 0
   m_Name: CameraRoot
   m_TagString: Untagged
@@ -289,6 +290,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &556786928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 556786926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95f1736246c269d46979bb6f56d349f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 854791705}
+  follow: {fileID: 112882151}
+  cameraTransform: {fileID: 82260360}
 --- !u!1 &692143167
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,6 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fae0b6bb28d51948bdcd31b0cabcd2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraRoot: {fileID: 556786928}
 --- !u!4 &692143170
 Transform:
   m_ObjectHideFlags: 0
@@ -442,6 +458,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 973960469}
+  - component: {fileID: 973960470}
   m_Layer: 0
   m_Name: SystemObj
   m_TagString: Untagged
@@ -462,6 +479,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &973960470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 973960468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b89a8d092253ed340b96fa77b6d0076b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1325389584
 GameObject:
   m_ObjectHideFlags: 0
@@ -615,7 +643,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isUseFixedUpdate: 1
   followObject: {fileID: 854791702}
-  followOffset: {x: 0, y: 0, z: 0}
+  followOffset: {x: 0, y: 1.5, z: -2}
   followSpeed: 5
 --- !u!4 &1886090615
 Transform:

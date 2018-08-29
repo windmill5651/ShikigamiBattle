@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Extensions;
+using Game.Library.PlayerInput;
+using Shikigam.Game.Camera;
+using Game.Library.Camera;
 
 /// <summary>
 /// 式神のキャラクター名前空間です
@@ -21,6 +24,11 @@ namespace Shikigami.Game.Character
         /// </summary>
         private List< ShikigamiBattleCharacter > fieldCharacters = null;
 
+        /// <summary>
+        /// このゲームで登場するすべてのキャラクタ
+        /// </summary>
+        private List< ShikigamiBattleCharacter > allCharacters = null;
+
         #endregion
 
         /// <summary>
@@ -36,14 +44,72 @@ namespace Shikigami.Game.Character
 
             var taskList = new List< IEnumerator >();
 
+            // 全てのキャラクターのリストを生成
+            allCharacters = new List< ShikigamiBattleCharacter >();
+
 
             for( int i = 0; i < startChatacterCount; i++ )
             {                
                 var unit = Instantiate( srcPrefab );
                 taskList.Add( unit.SetupAsync( characterParams[ i ] ) );
+
+                allCharacters.Add( unit );
             }
 
-            StartCoroutine( ParallelCoroutine.WhenAll( taskList.ToArray() ) );
+            // 非同期セットアップタスク生成
+            var task = ChaindCoroutine.Empty();
+
+            task.Continue( () =>
+            {
+                return ParallelCoroutine.WhenAll( taskList.ToArray() );
+            } )
+            .Continue( () =>
+            {
+                SetControlOwner();
+                return null;
+            } );
+
+            StartCoroutine( task );
+        }
+
+        /// <summary>
+        /// コントロールするオーナーを設定します
+        /// </summary>
+        private void SetControlOwner(  )
+        {
+
+            foreach( var character in allCharacters )
+            {
+                if( character.OwnerType == CharacterOwnerType.PLAYER )
+                {
+                    var adapter = new InputAdapter();
+                    var cameraController = FindObjectOfType< CameraRoot >();
+
+                    var cameraParam = new CameraTargetParameter()
+                    {
+                        center = character.transform,
+                        distance = 15,
+                        heightOffset = 3,
+                        thetaRestrictionDegree = 50,
+                        speed = 10,
+                    };
+
+                    cameraController.Setup( cameraParam, character.transform );
+
+                    adapter.Setup( character, cameraController );
+                    // プレイヤーの操作系につなげる
+                    InputManager.Instance.SetAdapter( adapter, character.OwnerNo );
+                }
+                else if( character.OwnerType == CharacterOwnerType.AI )
+                {
+                    // AIの操作系に繋げる
+                }
+                else if( character.OwnerType == CharacterOwnerType.REPLAY )
+                {
+                    // リプレイの操作系に繋げる
+                }
+            }
+
         }
 
     }

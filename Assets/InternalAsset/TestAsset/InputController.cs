@@ -1,7 +1,4 @@
 ﻿using Game.Library.Camera;
-using Shikigami.Game;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>

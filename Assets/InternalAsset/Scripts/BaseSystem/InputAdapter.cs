@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using Shikigami.Game.Character;
+using Shikigam.Game.Camera;
+using Game.Library.PlayerInput;
 
 /// <summary>
 /// シキガミのゲーム名前空間です。
@@ -13,15 +15,20 @@ namespace Shikigami.Game
     ///  
     /// Author:Windmill
     /// </summary>
-    public class InputAdapter : MonoBehaviour
+    public class InputAdapter : IInputAdapter
     {
         #region フィールド/プロパティ
 
         /// <summary>
         /// キャラクターをコントロールするクラスです。
         /// </summary>
-        private ShikigamiBattleCharacter character;
-    
+        private ShikigamiBattleCharacter character = null;
+
+        /// <summary>
+        /// カメラのルートです
+        /// </summary>
+        private CameraRoot cameraRoot = null;
+
         #endregion
 
 
@@ -31,16 +38,18 @@ namespace Shikigami.Game
         /// セットアップを行います
         /// </summary>
         /// <param name="character">操作するキャラクター</param>
-        public void Setup( ShikigamiBattleCharacter character )
+        /// <param name="cameraRoot">カメラの操作です</param>
+        public void Setup( ShikigamiBattleCharacter character, CameraRoot cameraRoot )
         {
             this.character = character;
+            this.cameraRoot = cameraRoot;
         }
 
         /// <summary>
-        /// キャラクター制御入力です
+        /// キャラクター移動制御入力です
         /// </summary>
         /// <param name="input">入力ベクトル</param>
-        public void InputCharacterControl( Vector3 input )
+        public void InputCharacterMoveControl( Vector3 input )
         {
             character.Move( input );
         }
@@ -51,15 +60,19 @@ namespace Shikigami.Game
         /// <param name="input"></param>
         public void InputCameraControl( Vector3 input )
         {
-            
+            cameraRoot.MoveCamera( input );
         }
 
         /// <summary>
         /// 攻撃入力です。
         /// </summary>
-        public void InputAttackControl()
+        /// <param name="isInput">入力されたか</param>
+        public void InputAttackControl( bool isInput )
         {
-            character.Attack();
+            if ( isInput )
+            {
+                character.Attack();
+            }
         }
 
         /// <summary>
