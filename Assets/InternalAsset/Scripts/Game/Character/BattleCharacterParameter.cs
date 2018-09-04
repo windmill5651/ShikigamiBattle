@@ -32,11 +32,6 @@ namespace Shikigami.Game.Character
         /// </summary>
         public int ownerNo = -1;
 
-        /// <summary>
-        /// ベースとなる方向
-        /// </summary>
-        public Transform baseDir;
-
         #endregion
 
     }

@@ -112,6 +112,7 @@ namespace Shikigami.Game.Character
         /// <param name="state">ステート変更時処理</param>
         protected void ChangeState( CharacterState state )
         {
+            Debug.Log( "StateChange:" + state );
             if( onChangeState != null )
             {
                 onChangeState( state );
@@ -137,6 +138,10 @@ namespace Shikigami.Game.Character
 
             stateParam.CurrentInputVec = inputVector;
         }
+
+        public virtual void OnAnimationStateEnter(){}
+
+        public virtual void OnAnimationStateExit(){}
 
         #endregion
 

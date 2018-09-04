@@ -1,13 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿using UnityEngine;
 using System;
 
+/// <summary>
+/// 式神のキャラクター名前空間です。
+/// </summary>
 namespace Shikigami.Game.Character
 {
 
-
+    /// <summary>
+    ///  AttackState
+    ///  攻撃ステートです。
+    ///  
+    /// Author:Windmill
+    /// </summary>
     public class AttackState : CharacterStateBase
     {
 
@@ -45,6 +50,18 @@ namespace Shikigami.Game.Character
         public override void OnUpdate( Rigidbody rigid )
         {
         }
+
+        public override void OnAnimationStateExit()
+        {
+
+            Debug.Log( "OnAnimEnd" + animationControl.IsAttacking );
+            // ステート終了時に攻撃入力が成立していない場合は立ちステートへ
+            if ( !animationControl.IsAttacking )
+            {
+                ChangeState( CharacterState.Idole );
+            }
+        }
+
     }
 
 }

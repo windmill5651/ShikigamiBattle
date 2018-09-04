@@ -75,7 +75,7 @@ namespace Game.System
         /// </summary>
         private void SetDebugSetting()
         {
-            Debug.SetLogEnabled( true );
+            //Debug.SetLogEnabled( true );
             startSceneName = DebugSetting.StartSceneDebug;
         }
 

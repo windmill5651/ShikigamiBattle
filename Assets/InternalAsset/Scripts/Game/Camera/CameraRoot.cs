@@ -38,11 +38,11 @@ namespace Shikigam.Game.Camera
             }
         }
 
-
         /// <summary>
         /// セットアップを行います
         /// </summary>
         /// <param name="parameter">カメラのパラメータ</param>
+        /// <param name="followTarget">カメラの追跡ターゲット</param>
         public void Setup( CameraTargetParameter parameter, Transform followTarget )
         {
             target.Setup( parameter );

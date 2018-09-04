@@ -22,7 +22,6 @@ namespace Shikigami.Game
             {
                 characterId = 0,
                 ownerType = CharacterOwnerType.PLAYER,
-                baseDir = cameraRoot.CameraTransform,
             };
 
             paramList.Add( param );

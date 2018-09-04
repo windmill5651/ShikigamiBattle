@@ -49,67 +49,63 @@ namespace Shikigami.Game.Character
 
 
             for( int i = 0; i < startChatacterCount; i++ )
-            {                
+            {
                 var unit = Instantiate( srcPrefab );
-                taskList.Add( unit.SetupAsync( characterParams[ i ] ) );
-
+                taskList.Add( SetupUnit( unit, characterParams[ i ] ) );
                 allCharacters.Add( unit );
             }
 
-            // 非同期セットアップタスク生成
-            var task = ChaindCoroutine.Empty();
-
-            task.Continue( () =>
-            {
-                return ParallelCoroutine.WhenAll( taskList.ToArray() );
-            } )
-            .Continue( () =>
-            {
-                SetControlOwner();
-                return null;
-            } );
-
-            StartCoroutine( task );
+            StartCoroutine( ParallelCoroutine.WhenAll( taskList.ToArray() ) );
         }
 
         /// <summary>
         /// コントロールするオーナーを設定します
         /// </summary>
-        private void SetControlOwner(  )
+        private IEnumerator SetupUnit( ShikigamiBattleCharacter unit, BattleCharacterParameter param )
         {
 
-            foreach( var character in allCharacters )
+            // キャラクターの向きのベース
+            Transform characterDirBase = null;
+
+            if ( param.ownerType == CharacterOwnerType.PLAYER )
             {
-                if( character.OwnerType == CharacterOwnerType.PLAYER )
-                {
-                    var adapter = new InputAdapter();
-                    var cameraController = FindObjectOfType< CameraRoot >();
+                var adapter = new InputAdapter();
 
-                    var cameraParam = new CameraTargetParameter()
-                    {
-                        center = character.transform,
-                        distance = 15,
-                        heightOffset = 3,
-                        thetaRestrictionDegree = 50,
-                        speed = 10,
-                    };
+                var request = Resources.LoadAsync<CameraRoot>( "GameScene/CameraRoot" );
 
-                    cameraController.Setup( cameraParam, character.transform );
+                yield return request;
 
-                    adapter.Setup( character, cameraController );
-                    // プレイヤーの操作系につなげる
-                    InputManager.Instance.SetAdapter( adapter, character.OwnerNo );
-                }
-                else if( character.OwnerType == CharacterOwnerType.AI )
+                var asset = request.asset as CameraRoot;
+
+                var camera = Instantiate( asset );
+
+                var cameraParam = new CameraTargetParameter()
                 {
-                    // AIの操作系に繋げる
-                }
-                else if( character.OwnerType == CharacterOwnerType.REPLAY )
-                {
-                    // リプレイの操作系に繋げる
-                }
+                    center = unit.transform,
+                    distance = 15,
+                    heightOffset = 3,
+                    thetaRestrictionDegree = 50,
+                    speed = 10,
+                };
+
+                camera.Setup( cameraParam, unit.transform );
+                characterDirBase = camera.CameraTransform;
+
+                adapter.Setup( unit, camera );
+                // プレイヤーの操作系につなげる
+                InputManager.Instance.SetAdapter( adapter, param.ownerNo );
+            }
+            else if ( param.ownerType == CharacterOwnerType.AI )
+            {
+                // AIの操作系に繋げる
+            }
+            else if ( param.ownerType == CharacterOwnerType.REPLAY )
+            {
+                // リプレイの操作系に繋げる
             }
 
+            // キャラクターのセットアップ
+            yield return unit.SetupAsync( param, characterDirBase );
         }
 
     }

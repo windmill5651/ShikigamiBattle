@@ -38,6 +38,14 @@ namespace Shikigami.Game.Character
         /// </summary>
         private bool isFinishing = false;
 
+        public bool IsAttacking
+        {
+            get
+            {
+                return isAttacking || isFinishing;
+            }
+        }
+
         #endregion
 
 
@@ -49,6 +57,7 @@ namespace Shikigami.Game.Character
         /// <param name="moveSpeed">移動速度です</param>
         public void SetMoveSpeed( float moveSpeed )
         {
+            //Debug.Log( "MoveSpeed" + moveSpeed );
             animator.SetFloat( "Speed", moveSpeed );
         }
 
@@ -73,7 +82,6 @@ namespace Shikigami.Game.Character
 
             animator.SetTrigger( "Attack" );
             isAttacking = true;
-
             animator.SetBool( "IsAttack", isAttacking );
         }
 
@@ -101,8 +109,21 @@ namespace Shikigami.Game.Character
         /// </summary>
         private IEnumerator FinishWait()
         {
+            yield return WaitForAnimation();
+
+            isFinishing = false;
+
+            yield break;
+        }
+
+        /// <summary>
+        /// アニメーションの終了を待ちます
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator WaitForAnimation()
+        {
             var state = animator.GetCurrentAnimatorStateInfo( 0 );
-            var hash = state.fullPathHash;    
+            var hash = state.fullPathHash;
 
             // 現在のアニメーションが完了するまで待つ
             while ( state.normalizedTime < 1 || hash == state.fullPathHash )
@@ -110,10 +131,6 @@ namespace Shikigami.Game.Character
                 yield return null;
                 state = animator.GetCurrentAnimatorStateInfo( 0 );
             }
-
-            isFinishing = false;
-
-            yield break;
         }
 
         #endregion

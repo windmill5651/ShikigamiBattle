@@ -18,6 +18,10 @@ namespace Shikigami.Game.Character
     public class MoveState : CharacterStateBase
     {
 
+        private float currentSpeedMag = 0;
+
+        private Vector3 currentDir = new Vector3();
+
         #region メソッド
 
         /// <summary>
@@ -54,18 +58,44 @@ namespace Shikigami.Game.Character
         /// <returns>遷移先ステート</returns>
         public override void OnUpdate( Rigidbody rigid )
         {
-            var moveVector = ( stateParam.CurrentInputVec * stateParam.maxSpeed * Time.fixedDeltaTime );
-            stateParam.CurrentMove = moveVector;
-            rigid.velocity = moveVector;
+            var inputVec = stateParam.CurrentInputVec;
 
-            var moveMag = ( moveVector.sqrMagnitude / ( stateParam.maxSpeed * stateParam.maxSpeed ) );
+            if ( inputVec.sqrMagnitude > 0 )
+            {
+                currentDir = inputVec.normalized;
+                currentSpeedMag += Time.fixedDeltaTime * 5;
+            }
+            else
+            {
+                currentSpeedMag -= Time.fixedDeltaTime * 5;
+            }
 
-            animationControl.SetMoveSpeed( moveMag );
+            if ( inputVec.sqrMagnitude > currentSpeedMag * currentSpeedMag )
+            {
+                currentSpeedMag = inputVec.magnitude;
+            }
+
+            if( currentSpeedMag > 1.0f )
+            {
+                currentSpeedMag = 1.0f;
+            }
+            else if( currentSpeedMag < 0 )
+            {
+                currentSpeedMag = 0;
+            }
+
+            var speed = ( currentSpeedMag * stateParam.maxSpeed );
+            var moveVec = currentDir * ( speed * Time.fixedDeltaTime );
+
+            stateParam.CurrentMove = moveVec;
+            rigid.velocity = moveVec;
+
+            animationControl.SetMoveSpeed( currentSpeedMag );
 
             // 移動中だけ方向転換をする
-            if ( moveVector.sqrMagnitude > 0.0f )
+            if ( currentSpeedMag > 0.0f )
             {
-                var lookDir = moveVector.normalized;
+                var lookDir = currentDir.normalized;
                 lookDir.y = 0;
                 rigid.rotation = Quaternion.LookRotation( lookDir );
             }

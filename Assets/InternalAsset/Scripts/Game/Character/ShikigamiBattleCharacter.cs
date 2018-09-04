@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Game.Util.Animation;
 using System.Collections;
 
 /// <summary>
@@ -86,6 +87,16 @@ namespace Shikigami.Game.Character
         private BattleCharacterParameter characterParam = null;
 
         /// <summary>
+        /// アニメーションのイベントハンドラです
+        /// </summary>
+        private AnimationEventHandler animationHandler = null;
+
+        /// <summary>
+        /// 初期化済み？
+        /// </summary>
+        private bool isInit = false;
+
+        /// <summary>
         /// オーナーの名前です
         /// </summary>
         public int OwnerNo
@@ -130,14 +141,21 @@ namespace Shikigami.Game.Character
         /// 非同期でセットアップを行います
         /// </summary>
         /// <param name="param">パラメータ</param>
-        public IEnumerator SetupAsync( BattleCharacterParameter param )
+        public IEnumerator SetupAsync( BattleCharacterParameter param, Transform baseDirection = null )
         {
             rigidBody = GetComponent< Rigidbody >();
 
             // キャラクターのパラメータです
             characterParam = param;
 
-            baseDir = param.baseDir;
+            if ( baseDirection != null )
+            {
+                baseDir = baseDirection;
+            }
+            else
+            {
+                baseDir = transform;
+            }
 
             // モデルのセットアップを行います
             yield return SetupModelAsync( param.characterId );
@@ -149,6 +167,8 @@ namespace Shikigami.Game.Character
             };
 
             states = CharacterStateBase.CreateStateMachine( stateParam, animController, OnChangeState );
+
+            isInit = true;
         }
 
         /// <summary>
@@ -171,10 +191,15 @@ namespace Shikigami.Game.Character
                 // インスタンス化してコンポーネント取得
                 var modelObj = Instantiate( modelSrc );
                 var animationControl = modelObj.GetComponent< CharacterAnimationControl >();
+                var animator = modelObj.GetComponent< Animator >();
                 
                 // モデル位置を0にする
                 modelObj.transform.SetParent( transform );
                 modelObj.transform.localPosition = Vector3.zero;
+
+                // アニメーションのハンドラ設定
+                animationHandler = new AnimationEventHandler(); 
+                animationHandler.Setup( animator, OnStateEnter, OnStateFinish );
 
                 // アニメーションコントローラを設定
                 animController = animationControl;
@@ -183,7 +208,22 @@ namespace Shikigami.Game.Character
             {
                 Debug.LogError( "Model is Not Loaded ID:" + characterId );
             }
+        }
 
+        private void OnStateEnter( AnimatorStateInfo info )
+        {
+            if ( isInit )
+            {
+                states[ ( int )currentState ].OnAnimationStateEnter();
+            }
+        }
+
+        private void OnStateFinish( AnimatorStateInfo info )
+        {
+            if ( isInit )
+            {
+                states[ ( int )currentState ].OnAnimationStateExit();
+            }
         }
 
         /// <summary>
@@ -192,19 +232,21 @@ namespace Shikigami.Game.Character
         /// <param name="inputDir">入力ベクトルです。</param>
         public void Move( Vector3 inputDir )
         {
-            var forward = baseDir.forward * inputDir.z;
-            var side = baseDir.right * inputDir.x;
-            var moveDir = forward + side;
-            moveDir.y = 0;
-            Debug.Log( inputDir );
-            // 移動ベクトル
-            if ( moveDir.sqrMagnitude > 1.0f )
+            if ( isInit )
             {
-                moveDir.Normalize();
+                var forward = baseDir.forward * inputDir.z;
+                var side = baseDir.right * inputDir.x;
+                var moveDir = forward + side;
+
+                moveDir.y = 0;
+                // 移動ベクトル
+                if ( moveDir.sqrMagnitude > 1.0f )
+                {
+                    moveDir.Normalize();
+                }
+
+                states[ ( int )currentState ].InputMove( moveDir );
             }
-
-
-            states[ ( int )currentState ].InputMove( inputDir );
         }
 
         /// <summary>
@@ -212,7 +254,10 @@ namespace Shikigami.Game.Character
         /// </summary>
         public void Attack()
         {
-            states[ ( int )currentState ].InputAttack();
+            if ( isInit )
+            {
+                states[ ( int )currentState ].InputAttack();
+            }
         }
 
         /// <summary>
@@ -220,7 +265,10 @@ namespace Shikigami.Game.Character
         /// </summary>
         public void InputJump( bool isInput )
         {
-            states[ ( int )currentState ].InputJump( isInput );
+            if ( states != null )
+            {
+                states[ ( int )currentState ].InputJump( isInput );
+            }
         }
 
         /// <summary>
@@ -228,7 +276,7 @@ namespace Shikigami.Game.Character
         /// </summary>
         protected void FixedUpdate()
         {
-            if ( states != null )
+            if ( isInit )
             {
                 states[ ( int )currentState ].OnUpdate( rigidBody );
             }

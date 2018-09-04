@@ -30,6 +30,7 @@ namespace Shikigami.Game.Character
         /// <returns>遷移後ステート</returns>
         public override void InputAttack()
         {
+            animationControl.SetAttackTrigger();
             ChangeState( CharacterState.Attack );
         }
 
