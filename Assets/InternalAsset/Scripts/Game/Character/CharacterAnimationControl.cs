@@ -57,7 +57,6 @@ namespace Shikigami.Game.Character
         /// <param name="moveSpeed">移動速度です</param>
         public void SetMoveSpeed( float moveSpeed )
         {
-            //Debug.Log( "MoveSpeed" + moveSpeed );
             animator.SetFloat( "Speed", moveSpeed );
         }
 

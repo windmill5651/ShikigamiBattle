@@ -51,10 +51,12 @@ namespace Shikigami.Game.Character
         {
         }
 
+        /// <summary>
+        /// アニメーション終了時処理
+        /// </summary>
         public override void OnAnimationStateExit()
         {
 
-            Debug.Log( "OnAnimEnd" + animationControl.IsAttacking );
             // ステート終了時に攻撃入力が成立していない場合は立ちステートへ
             if ( !animationControl.IsAttacking )
             {

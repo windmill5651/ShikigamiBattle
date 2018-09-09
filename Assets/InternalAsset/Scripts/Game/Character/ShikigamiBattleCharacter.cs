@@ -210,6 +210,10 @@ namespace Shikigami.Game.Character
             }
         }
 
+        /// <summary>
+        /// アニメーションのステートが変わった時の処理
+        /// </summary>
+        /// <param name="info">アニメーション情報</param>
         private void OnStateEnter( AnimatorStateInfo info )
         {
             if ( isInit )
@@ -218,6 +222,10 @@ namespace Shikigami.Game.Character
             }
         }
 
+        /// <summary>
+        /// アニメーションのステートが完了した時の処理
+        /// </summary>
+        /// <param name="info">アニメーション情報</param>
         private void OnStateFinish( AnimatorStateInfo info )
         {
             if ( isInit )
@@ -244,6 +252,8 @@ namespace Shikigami.Game.Character
                 {
                     moveDir.Normalize();
                 }
+
+                Debug.Log( moveDir );
 
                 states[ ( int )currentState ].InputMove( moveDir );
             }
@@ -278,8 +288,28 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
+                RaycastHit hit;
+                Debug.DrawRay( transform.position + Vector3.up , Vector3.down );
+                if ( Physics.Raycast( transform.position + Vector3.up , Vector3.down,1.1f, 1<<8  ) )
+                {
+                    // Yの絶対値があれば0をセット
+                    if( Mathf.Abs( stateParam.CurrentMove.y ) > 0 )
+                    {
+                        Debug.Log( " SetZero :" + stateParam.CurrentMove.y );
+                        stateParam.SetYMovement( 0 );
+                    }
+
+                    stateParam.isGround = true;
+                }
+                else
+                {
+                    stateParam.isGround = false;
+                    stateParam.AddYMovement( -1 );
+                }
                 states[ ( int )currentState ].OnUpdate( rigidBody );
+                rigidBody.velocity = stateParam.CurrentMove;
             }
+
         }
 
         /// <summary>

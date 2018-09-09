@@ -85,14 +85,14 @@ namespace Shikigami.Game.Character
         Attack,
 
         /// <summary>
-        /// ダッシュ
-        /// </summary>
-        Dash,
-
-        /// <summary>
         /// ジャンプ
         /// </summary>
         Jump,
+
+        /// <summary>
+        /// ダッシュ
+        /// </summary>
+        Dash,
 
         /// <summary>
         /// 落下

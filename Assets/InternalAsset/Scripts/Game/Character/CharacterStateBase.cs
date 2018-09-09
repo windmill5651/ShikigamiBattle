@@ -27,6 +27,12 @@ namespace Shikigami.Game.Character
             /// </summary>
             public float maxSpeed = 0.0f;
 
+
+            /// <summary>
+            /// 接地しているか?
+            /// </summary>
+            public bool isGround = false;
+
             /// <summary>
             /// 現在の入力ベクトルです。
             /// </summary>
@@ -35,27 +41,52 @@ namespace Shikigami.Game.Character
             /// <summary>
             /// 現在の移動ベクトルです。
             /// </summary>
-            public Vector3 CurrentMove { get; set; }
+            public Vector3 CurrentMove { get; private set; }
 
-            /// <summary>
-            /// 現在のインプットステートです。
-            /// </summary>
-            public InputableState CurrentInputState { get; set; }
-
-            /// <summary>
-            /// 移動速度倍率です。
-            /// </summary>
-            public float MoveMag { get; set; }
-        
 
             /// <summary>
             /// 移動入力がされているか
             /// </summary>
             public bool IsInputMove
             {
-                get { return ( CurrentInputVec.sqrMagnitude > 0 );   }
+                get { return ( CurrentInputVec.sqrMagnitude > 0 ); }
             }
 
+            /// <summary>
+            /// 平行移動量をセットします
+            /// </summary>
+            /// <param name="moveVec">平行移動量</param>
+            public void SetMove( Vector3 moveVec )
+            {
+                var temp = CurrentMove;
+                temp.x = moveVec.x;
+                temp.z = moveVec.z;
+                CurrentMove = temp;
+            }
+
+            /// <summary>
+            /// Y軸移動量をセットします
+            /// </summary>
+            /// <param name="jumpPower">ジャンプ力</param>
+            public void SetYMovement( float jumpPower )
+            {
+                var temp = CurrentMove;
+                temp.y = jumpPower;
+
+                CurrentMove = temp;
+            }
+
+            /// <summary>
+            /// Yの移動量を加算します
+            /// </summary>
+            /// <param name="movement">加算する移動量</param>
+            public void AddYMovement( float movement )            
+            {
+                var temp = CurrentMove;
+                temp.y += movement;
+
+                CurrentMove = temp;
+            }
         }
 
         #endregion
@@ -90,6 +121,7 @@ namespace Shikigami.Game.Character
                 new IdolState( parameter, control, onChange ),
                 new MoveState( parameter, control, onChange ),
                 new AttackState( parameter, control, onChange ),
+                new JumpState( parameter, control, onChange ),
             };
         }
 
@@ -112,7 +144,6 @@ namespace Shikigami.Game.Character
         /// <param name="state">ステート変更時処理</param>
         protected void ChangeState( CharacterState state )
         {
-            Debug.Log( "StateChange:" + state );
             if( onChangeState != null )
             {
                 onChangeState( state );

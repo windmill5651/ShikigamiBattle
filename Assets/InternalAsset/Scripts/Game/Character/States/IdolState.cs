@@ -54,7 +54,7 @@ namespace Shikigami.Game.Character
         /// <returns>遷移後ステートです。</returns>
         public override void OnUpdate( Rigidbody rigid )
         {
-            if( stateParam.CurrentInputVec.sqrMagnitude > 0 )
+            if( stateParam.IsInputMove )
             {
                 ChangeState( CharacterState.Move );
             }

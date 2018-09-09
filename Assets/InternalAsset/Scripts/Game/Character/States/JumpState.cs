@@ -4,62 +4,64 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 式神のキャラクター名前空間です。
+/// 式神のゲームキャラクターの名前空間です
 /// </summary>
 namespace Shikigami.Game.Character
 {
 
     /// <summary>
-    ///  MoveState
-    ///  移動ステートです。
+    ///  JumpState
+    ///  ジャンプステートです。
     ///  
     /// Author:Windmill
     /// </summary>
-    public class MoveState : CharacterStateBase
+    public class JumpState : CharacterStateBase
     {
+
+        #region 固定値
+
+        /// <summary>
+        /// ジャンプの力
+        /// </summary>
+        private const float JUMP_POW = 10;
+
+        #endregion
+
+        #region フィールド/プロパティ
+        
+        /// <summary>
+        /// ジャンプ入力されているか?
+        /// </summary>
+        private bool isInputJump = false;
+
+        private Vector3 currentDir = new Vector3();
 
         private float currentSpeedMag = 0;
 
-        private Vector3 currentDir = new Vector3();
+        #endregion
+
 
         #region メソッド
 
         /// <summary>
-        /// コンストラクタ
+        /// コンストラクタです
         /// </summary>
-        /// <param name="parameter">ステートのパラメータです。</param>
-        /// <param name="animControl">アニメーションのコントローラです</param>
-        /// <param name="onChange">ステート変更時の処理です。</param>
-        public MoveState( StateParameter parameter, CharacterAnimationControl animControl,  Action< CharacterState > onChange ) : base( parameter, animControl, onChange )
+        /// <param name="parameter">パラメータ</param>
+        /// <param name="animControl">アニメーションコントロール</param>
+        /// <param name="onChange">変更時処理</param>
+        public JumpState( StateParameter parameter, CharacterAnimationControl animControl, Action<CharacterState> onChange ) : base( parameter, animControl, onChange )
         {
         }
 
-        /// <summary>
-        /// 攻撃入力
-        /// </summary>
-        /// <returns>遷移先ステート</returns>
         public override void InputAttack()
         {
         }
 
-        /// <summary>
-        /// ジャンプ入力
-        /// </summary>
-        /// <param name="isInput">入力方向</param>
-        /// <returns>遷移先ステート</returns>
         public override void InputJump( bool isInput )
         {
-            if( isInput )
-            {
-                ChangeState( CharacterState.Jump );
-            }
+            isInputJump = isInput;
         }
 
-        /// <summary>
-        /// 定期更新処理
-        /// </summary>
-        /// <param name="rigid">キャラクターの物理挙動</param>
-        /// <returns>遷移先ステート</returns>
         public override void OnUpdate( Rigidbody rigid )
         {
             var inputVec = stateParam.CurrentInputVec;
@@ -70,7 +72,7 @@ namespace Shikigami.Game.Character
                 currentDir = inputVec.normalized;
                 currentSpeedMag += Time.fixedDeltaTime * 5;
             }
-            // 入力されていなかったラ速度を徐々に下げる
+            // 入力されていなかったら速度を徐々に下げる
             else
             {
                 currentSpeedMag -= Time.fixedDeltaTime * 5;
@@ -82,11 +84,11 @@ namespace Shikigami.Game.Character
                 currentSpeedMag = inputVec.magnitude;
             }
 
-            if( currentSpeedMag > 1.0f )
+            if ( currentSpeedMag > 1.0f )
             {
                 currentSpeedMag = 1.0f;
             }
-            else if( currentSpeedMag < 0 )
+            else if ( currentSpeedMag < 0 )
             {
                 currentSpeedMag = 0;
             }
@@ -94,7 +96,7 @@ namespace Shikigami.Game.Character
             var speed = ( currentSpeedMag * stateParam.maxSpeed );
             var moveVec = currentDir * ( speed * Time.fixedDeltaTime );
 
-            animationControl.SetMoveSpeed( currentSpeedMag );
+            //animationControl.SetMoveSpeed( currentSpeedMag );
             // 移動中だけ方向転換をする
             if ( currentSpeedMag > 0.0f )
             {
@@ -102,13 +104,19 @@ namespace Shikigami.Game.Character
                 lookDir.y = 0;
                 rigid.rotation = Quaternion.LookRotation( lookDir );
             }
-            else
+
+            stateParam.SetMove( moveVec );
+            if ( isInputJump )
             {
-                // 移動していなかったら立ち状態に戻す
+                stateParam.SetYMovement( JUMP_POW );
+
+            }
+            
+            if( stateParam.isGround )
+            {
                 ChangeState( CharacterState.Idole );
             }
 
-            stateParam.SetMove( moveVec );
         }
 
         #endregion
