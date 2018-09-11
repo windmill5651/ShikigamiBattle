@@ -52,7 +52,7 @@ namespace Shikigami.Game.Character
         /// </summary>
         /// <param name="rigid">キャラクターのRigidBodyです。</param>
         /// <returns>遷移後ステートです。</returns>
-        public override void OnUpdate( Rigidbody rigid )
+        public override void OnUpdate()
         {
             if( values.IsInputMove )
             {
