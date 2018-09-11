@@ -49,7 +49,7 @@ namespace Shikigami.Game.Character
         /// <param name="parameter">パラメータ</param>
         /// <param name="animControl">アニメーションコントロール</param>
         /// <param name="onChange">変更時処理</param>
-        public JumpState( StateParameter parameter, CharacterAnimationControl animControl, Action<CharacterState> onChange ) : base( parameter, animControl, onChange )
+        public JumpState( CharacterStateSharedValues parameter, CharacterAnimationControl animControl, Action<CharacterState> onChange ) : base( parameter, animControl, onChange )
         {
         }
 
@@ -64,7 +64,7 @@ namespace Shikigami.Game.Character
 
         public override void OnUpdate( Rigidbody rigid )
         {
-            var inputVec = stateParam.CurrentInputVec;
+            var inputVec = values.CurrentInputVec;
 
             // 入力がされていたら速度を徐々に上げる
             if ( inputVec.sqrMagnitude > 0 )
@@ -93,7 +93,7 @@ namespace Shikigami.Game.Character
                 currentSpeedMag = 0;
             }
 
-            var speed = ( currentSpeedMag * stateParam.maxSpeed );
+            var speed = ( currentSpeedMag * 100 );
             var moveVec = currentDir * ( speed * Time.fixedDeltaTime );
 
             //animationControl.SetMoveSpeed( currentSpeedMag );
@@ -105,14 +105,14 @@ namespace Shikigami.Game.Character
                 rigid.rotation = Quaternion.LookRotation( lookDir );
             }
 
-            stateParam.SetMove( moveVec );
+            values.SetMove( moveVec );
             if ( isInputJump )
             {
-                stateParam.SetYMovement( JUMP_POW );
+                values.SetYMovement( JUMP_POW );
 
             }
             
-            if( stateParam.isGround )
+            if( values.isGround )
             {
                 ChangeState( CharacterState.Idole );
             }

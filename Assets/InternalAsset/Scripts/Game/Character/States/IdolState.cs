@@ -22,7 +22,7 @@ namespace Shikigami.Game.Character
         /// <param name="parameter">ステートのパラメータです。</param>
         /// <param name="animControl">アニメーションのコントローラです</param>
         /// <param name="onChange">ステート変更時の処理です。</param>
-        public IdolState( StateParameter parameter, CharacterAnimationControl animControl, Action< CharacterState > onChange ) : base( parameter, animControl, onChange ) { }
+        public IdolState( CharacterStateSharedValues parameter, CharacterAnimationControl animControl, Action< CharacterState > onChange ) : base( parameter, animControl, onChange ) { }
 
         /// <summary>
         /// 攻撃入力です。
@@ -54,7 +54,7 @@ namespace Shikigami.Game.Character
         /// <returns>遷移後ステートです。</returns>
         public override void OnUpdate( Rigidbody rigid )
         {
-            if( stateParam.IsInputMove )
+            if( values.IsInputMove )
             {
                 ChangeState( CharacterState.Move );
             }

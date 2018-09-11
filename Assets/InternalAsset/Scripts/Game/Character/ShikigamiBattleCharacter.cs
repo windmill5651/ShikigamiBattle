@@ -30,16 +30,9 @@ namespace Shikigami.Game.Character
         #region インスペクター設定フィールド
 
         /// <summary>
-        /// 速度
-        /// </summary>
-        [ SerializeField ]
-        private float speed = 1;
-
-        /// <summary>
         /// ベースとなる方向
         /// </summary>
         private Transform baseDir = null;
-
 
         #endregion
 
@@ -50,37 +43,7 @@ namespace Shikigami.Game.Character
         /// 物理挙動です
         /// </summary>
         private Rigidbody rigidBody = null;
-
-        /// <summary>
-        /// キャラクターのステートです。
-        /// </summary>
-        private CharacterState currentState = CharacterState.Idole;
-
-        /// <summary>
-        /// 遷移予定のステートです。
-        /// </summary>
-        private CharacterState nextState = CharacterState.Idole;
-
-        /// <summary>
-        /// 入力のステートです。
-        /// </summary>
-        private InputableState inputState = InputableState.Enable;
-
-        /// <summary>
-        /// ステートマシンパラメータです。
-        /// </summary>
-        private CharacterStateBase.StateParameter stateParam = null;
  
-        /// <summary>
-        /// キャラクターのアニメーションをコントロールします。
-        /// </summary>
-        private CharacterAnimationControl animController;
-
-        /// <summary>
-        /// キャラクターのステート配列です。
-        /// </summary>
-        private CharacterStateBase[] states = null;
-    
         /// <summary>
         /// バトルキャラクターのパラメータです
         /// </summary>
@@ -90,6 +53,11 @@ namespace Shikigami.Game.Character
         /// アニメーションのイベントハンドラです
         /// </summary>
         private AnimationEventHandler animationHandler = null;
+
+        /// <summary>
+        /// キャラクターのステートマシンです。
+        /// </summary>
+        private CharacterStateMachine stateMachine = null;
 
         /// <summary>
         /// 初期化済み？
@@ -160,14 +128,6 @@ namespace Shikigami.Game.Character
             // モデルのセットアップを行います
             yield return SetupModelAsync( param.characterId );
             
-            // ステートのパラメータを生成
-            stateParam = new CharacterStateBase.StateParameter()
-            {
-                maxSpeed = speed,
-            };
-
-            states = CharacterStateBase.CreateStateMachine( stateParam, animController, OnChangeState );
-
             isInit = true;
         }
 
@@ -201,8 +161,9 @@ namespace Shikigami.Game.Character
                 animationHandler = new AnimationEventHandler(); 
                 animationHandler.Setup( animator, OnStateEnter, OnStateFinish );
 
-                // アニメーションコントローラを設定
-                animController = animationControl;
+                stateMachine = new CharacterStateMachine();
+                stateMachine.Setup( animationControl );
+
             }
             else
             {
@@ -218,7 +179,7 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                states[ ( int )currentState ].OnAnimationStateEnter();
+                stateMachine.OnStateEnter( info );
             }
         }
 
@@ -230,7 +191,7 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                states[ ( int )currentState ].OnAnimationStateExit();
+                stateMachine.OnStateExit( info );
             }
         }
 
@@ -253,9 +214,7 @@ namespace Shikigami.Game.Character
                     moveDir.Normalize();
                 }
 
-                Debug.Log( moveDir );
-
-                states[ ( int )currentState ].InputMove( moveDir );
+                stateMachine.OnInputMove( moveDir );
             }
         }
 
@@ -266,7 +225,7 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                states[ ( int )currentState ].InputAttack();
+                stateMachine.OnInputAttack();
             }
         }
 
@@ -275,9 +234,9 @@ namespace Shikigami.Game.Character
         /// </summary>
         public void InputJump( bool isInput )
         {
-            if ( states != null )
+            if ( isInit )
             {
-                states[ ( int )currentState ].InputJump( isInput );
+                stateMachine.OnInputJump( isInput );
             }
         }
 
@@ -293,43 +252,25 @@ namespace Shikigami.Game.Character
                 if ( Physics.Raycast( transform.position + Vector3.up , Vector3.down,1.1f, 1<<8  ) )
                 {
                     // Yの絶対値があれば0をセット
-                    if( Mathf.Abs( stateParam.CurrentMove.y ) > 0 )
+                    if( Mathf.Abs( stateMachine.StateValues.CurrentMove.y ) > 0 )
                     {
-                        Debug.Log( " SetZero :" + stateParam.CurrentMove.y );
-                        stateParam.SetYMovement( 0 );
+                        Debug.Log( " SetZero :" + stateMachine.StateValues.CurrentMove.y );
+                        stateMachine.StateValues.SetYMovement( 0 );
                     }
 
-                    stateParam.isGround = true;
+                    stateMachine.StateValues.isGround = true;
                 }
                 else
                 {
-                    stateParam.isGround = false;
-                    stateParam.AddYMovement( -1 );
+                    stateMachine.StateValues.isGround = false;
+                    stateMachine.StateValues.AddYMovement( -1 );
                 }
-                states[ ( int )currentState ].OnUpdate( rigidBody );
-                rigidBody.velocity = stateParam.CurrentMove;
+
+                stateMachine.OnUpdate( rigidBody );
+
+                rigidBody.velocity = stateMachine.StateValues.CurrentMove;
             }
 
-        }
-
-        /// <summary>
-        /// Update処理後の定期更新処理です。
-        /// </summary>
-        private void LateUpdate()
-        {
-            if( currentState != nextState )
-            {
-                currentState = nextState;
-            }
-        }
-
-        /// <summary>
-        /// ステートを変更します。
-        /// </summary>
-        /// <param name="nextState"></param>
-        private void OnChangeState( CharacterState nextState )
-        {
-            this.nextState = nextState;
         }
 
         #endregion

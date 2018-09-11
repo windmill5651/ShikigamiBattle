@@ -30,7 +30,7 @@ namespace Shikigami.Game.Character
         /// <param name="parameter">ステートのパラメータです。</param>
         /// <param name="animControl">アニメーションのコントローラです</param>
         /// <param name="onChange">ステート変更時の処理です。</param>
-        public MoveState( StateParameter parameter, CharacterAnimationControl animControl,  Action< CharacterState > onChange ) : base( parameter, animControl, onChange )
+        public MoveState( CharacterStateSharedValues parameter, CharacterAnimationControl animControl,  Action< CharacterState > onChange ) : base( parameter, animControl, onChange )
         {
         }
 
@@ -62,7 +62,7 @@ namespace Shikigami.Game.Character
         /// <returns>遷移先ステート</returns>
         public override void OnUpdate( Rigidbody rigid )
         {
-            var inputVec = stateParam.CurrentInputVec;
+            var inputVec = values.CurrentInputVec;
 
             // 入力がされていたら速度を徐々に上げる
             if ( inputVec.sqrMagnitude > 0 )
@@ -91,7 +91,7 @@ namespace Shikigami.Game.Character
                 currentSpeedMag = 0;
             }
 
-            var speed = ( currentSpeedMag * stateParam.maxSpeed );
+            var speed = ( currentSpeedMag * 100 );
             var moveVec = currentDir * ( speed * Time.fixedDeltaTime );
 
             animationControl.SetMoveSpeed( currentSpeedMag );
@@ -108,7 +108,7 @@ namespace Shikigami.Game.Character
                 ChangeState( CharacterState.Idole );
             }
 
-            stateParam.SetMove( moveVec );
+            values.SetMove( moveVec );
         }
 
         #endregion

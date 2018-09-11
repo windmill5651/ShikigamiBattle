@@ -22,7 +22,7 @@ namespace Shikigami.Game.Character
         /// <param name="parameter">パラメータ</param>
         /// <param name="animControl">アニメーションコントローラ</param>
         /// <param name="onChangeState">ステート変更通知</param>
-        public AttackState( StateParameter parameter, CharacterAnimationControl animControl, Action< CharacterState > onChangeState ) : base( parameter, animControl, onChangeState )
+        public AttackState( CharacterStateSharedValues parameter, CharacterAnimationControl animControl, Action< CharacterState > onChangeState ) : base( parameter, animControl, onChangeState )
         {
 
         }
