@@ -1,42 +1,29 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 式神のゲームキャラクターの名前空間です
-/// </summary>
 namespace Shikigami.Game.Character
 {
 
     /// <summary>
-    ///  JumpState
-    ///  ジャンプステートです。
+    ///  BattleCharacterMover
+    ///  バトルキャラクターの移動処理クラスです。
     ///  
     /// Author:Windmill
     /// </summary>
-    public class JumpState : CharacterStateBase
+    public class BattleCharacterMover
     {
-
-        #region 固定値
-
-        /// <summary>
-        /// ジャンプの力
-        /// </summary>
-        private const float JUMP_POW = 10;
-
-        #endregion
-
         #region フィールド/プロパティ
-        
+
         /// <summary>
-        /// ジャンプ入力されているか?
+        /// キャラクターの剛体です。
         /// </summary>
-        private bool isInputJump = false;
+        private Rigidbody characterBody = null;
 
-        private Vector3 currentDir = new Vector3();
-
-        private float currentSpeedMag = 0;
+        /// <summary>
+        /// バトルキャラクターのステータスです。
+        /// </summary>
+        private MasterBattleCharacterStatus status;
 
         #endregion
 
@@ -44,27 +31,19 @@ namespace Shikigami.Game.Character
         #region メソッド
 
         /// <summary>
-        /// コンストラクタです
+        /// バトルキャラクターの移動処理の生成
         /// </summary>
-        /// <param name="parameter">パラメータ</param>
-        /// <param name="animControl">アニメーションコントロール</param>
-        /// <param name="onChange">変更時処理</param>
-        public JumpState( StateParameter parameter, CharacterAnimationControl animControl, Action<CharacterState> onChange ) : base( parameter, animControl, onChange )
+        /// <param name="characterBody">キャラクターの剛体です。</param>
+        /// <param name="status">キャラクターのステータス</param>
+        public BattleCharacterMover( Rigidbody characterBody, MasterBattleCharacterStatus status )
         {
+            this.characterBody = characterBody;
+            this.status = status;
         }
 
-        public override void InputAttack()
+        public void Move()
         {
-        }
 
-        public override void InputJump( bool isInput )
-        {
-            isInputJump = isInput;
-        }
-
-        public override void OnUpdate()
-        {
-            /*
             var inputVec = stateParam.CurrentInputVec;
 
             // 入力がされていたら速度を徐々に上げる
@@ -73,7 +52,7 @@ namespace Shikigami.Game.Character
                 currentDir = inputVec.normalized;
                 currentSpeedMag += Time.fixedDeltaTime * 5;
             }
-            // 入力されていなかったら速度を徐々に下げる
+            // 入力されていなかったラ速度を徐々に下げる
             else
             {
                 currentSpeedMag -= Time.fixedDeltaTime * 5;
@@ -94,10 +73,10 @@ namespace Shikigami.Game.Character
                 currentSpeedMag = 0;
             }
 
-            var speed = ( currentSpeedMag * stateParam.maxSpeed );
+            var speed = ( currentSpeedMag * status.moveSpeed );
             var moveVec = currentDir * ( speed * Time.fixedDeltaTime );
 
-            //animationControl.SetMoveSpeed( currentSpeedMag );
+            animationControl.SetMoveSpeed( currentSpeedMag );
             // 移動中だけ方向転換をする
             if ( currentSpeedMag > 0.0f )
             {
@@ -105,22 +84,23 @@ namespace Shikigami.Game.Character
                 lookDir.y = 0;
                 rigid.rotation = Quaternion.LookRotation( lookDir );
             }
+            else
+            {
+                // 移動していなかったら立ち状態に戻す
+                ChangeState( CharacterState.Idole );
+            }
 
             stateParam.SetMove( moveVec );
+
             if ( isInputJump )
             {
-                stateParam.SetYMovement( JUMP_POW );
 
             }
-            
-            if( stateParam.isGround )
-            {
-                ChangeState( CharacterState.Idole );
-            }*/
 
         }
-
         #endregion
+
     }
 
 }
+

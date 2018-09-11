@@ -60,8 +60,9 @@ namespace Shikigami.Game.Character
         /// </summary>
         /// <param name="rigid">キャラクターの物理挙動</param>
         /// <returns>遷移先ステート</returns>
-        public override void OnUpdate( Rigidbody rigid )
+        public override void OnUpdate()
         {
+            /*
             var inputVec = stateParam.CurrentInputVec;
 
             // 入力がされていたら速度を徐々に上げる
@@ -109,6 +110,7 @@ namespace Shikigami.Game.Character
             }
 
             stateParam.SetMove( moveVec );
+            */
         }
 
         #endregion

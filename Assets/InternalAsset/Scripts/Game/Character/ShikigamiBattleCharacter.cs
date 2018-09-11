@@ -3,7 +3,7 @@ using Game.Util.Animation;
 using System.Collections;
 
 /// <summary>
-/// シキガミのゲームキャラクターの名前空間です。
+/// 式神のゲームキャラクターの名前空間です。
 /// </summary>
 namespace Shikigami.Game.Character
 {
@@ -16,7 +16,6 @@ namespace Shikigami.Game.Character
     [ RequireComponent( typeof( Rigidbody ) ) ]
     public class ShikigamiBattleCharacter : MonoBehaviour
     {
-
         #region 定数値
 
         /// <summary>
@@ -27,24 +26,12 @@ namespace Shikigami.Game.Character
         #endregion
 
 
-        #region インスペクター設定フィールド
-
-        /// <summary>
-        /// 速度
-        /// </summary>
-        [ SerializeField ]
-        private float speed = 1;
+        #region フィールド/プロパティ
 
         /// <summary>
         /// ベースとなる方向
         /// </summary>
         private Transform baseDir = null;
-
-
-        #endregion
-
-
-        #region フィールド/プロパティ
 
         /// <summary>
         /// 物理挙動です
@@ -52,34 +39,14 @@ namespace Shikigami.Game.Character
         private Rigidbody rigidBody = null;
 
         /// <summary>
-        /// キャラクターのステートです。
-        /// </summary>
-        private CharacterState currentState = CharacterState.Idole;
-
-        /// <summary>
-        /// 遷移予定のステートです。
-        /// </summary>
-        private CharacterState nextState = CharacterState.Idole;
-
-        /// <summary>
-        /// 入力のステートです。
-        /// </summary>
-        private InputableState inputState = InputableState.Enable;
-
-        /// <summary>
-        /// ステートマシンパラメータです。
-        /// </summary>
-        private CharacterStateBase.StateParameter stateParam = null;
- 
-        /// <summary>
         /// キャラクターのアニメーションをコントロールします。
         /// </summary>
-        private CharacterAnimationControl animController;
+        private CharacterAnimationControl animController = null;
 
         /// <summary>
-        /// キャラクターのステート配列です。
+        /// ステートマシンです
         /// </summary>
-        private CharacterStateBase[] states = null;
+        private CharacterStateMachine stateMachine = null;
     
         /// <summary>
         /// バトルキャラクターのパラメータです
@@ -90,6 +57,11 @@ namespace Shikigami.Game.Character
         /// アニメーションのイベントハンドラです
         /// </summary>
         private AnimationEventHandler animationHandler = null;
+
+        /// <summary>
+        /// バトルキャラの移動処理です。
+        /// </summary>
+        private BattleCharacterMover mover = null;
 
         /// <summary>
         /// 初期化済み？
@@ -159,14 +131,9 @@ namespace Shikigami.Game.Character
 
             // モデルのセットアップを行います
             yield return SetupModelAsync( param.characterId );
-            
-            // ステートのパラメータを生成
-            stateParam = new CharacterStateBase.StateParameter()
-            {
-                maxSpeed = speed,
-            };
 
-            states = CharacterStateBase.CreateStateMachine( stateParam, animController, OnChangeState );
+            stateMachine = new CharacterStateMachine();
+            stateMachine.CreateStateMachine( animController );
 
             isInit = true;
         }
@@ -218,7 +185,7 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                states[ ( int )currentState ].OnAnimationStateEnter();
+                stateMachine.OnAnimStateEnter( info );
             }
         }
 
@@ -230,7 +197,7 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                states[ ( int )currentState ].OnAnimationStateExit();
+                stateMachine.OnAnimStateFinish( info );
             }
         }
 
@@ -244,18 +211,17 @@ namespace Shikigami.Game.Character
             {
                 var forward = baseDir.forward * inputDir.z;
                 var side = baseDir.right * inputDir.x;
-                var moveDir = forward + side;
+                var inputVector = forward + side;
 
-                moveDir.y = 0;
+                inputVector.y = 0;
                 // 移動ベクトル
-                if ( moveDir.sqrMagnitude > 1.0f )
+                if ( inputVector.sqrMagnitude > 1.0f )
                 {
-                    moveDir.Normalize();
+                    inputVector.Normalize();
                 }
 
-                Debug.Log( moveDir );
-
-                states[ ( int )currentState ].InputMove( moveDir );
+                // ステートマシンに入力ベクトルを渡す
+                stateMachine.OnInputMove( inputVector );
             }
         }
 
@@ -266,7 +232,7 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                states[ ( int )currentState ].InputAttack();
+                stateMachine.OnInputAttack();
             }
         }
 
@@ -275,9 +241,9 @@ namespace Shikigami.Game.Character
         /// </summary>
         public void InputJump( bool isInput )
         {
-            if ( states != null )
+            if ( isInit )
             {
-                states[ ( int )currentState ].InputJump( isInput );
+                stateMachine.OnInputJump( isInput );
             }
         }
 
@@ -288,48 +254,8 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                RaycastHit hit;
-                Debug.DrawRay( transform.position + Vector3.up , Vector3.down );
-                if ( Physics.Raycast( transform.position + Vector3.up , Vector3.down,1.1f, 1<<8  ) )
-                {
-                    // Yの絶対値があれば0をセット
-                    if( Mathf.Abs( stateParam.CurrentMove.y ) > 0 )
-                    {
-                        Debug.Log( " SetZero :" + stateParam.CurrentMove.y );
-                        stateParam.SetYMovement( 0 );
-                    }
-
-                    stateParam.isGround = true;
-                }
-                else
-                {
-                    stateParam.isGround = false;
-                    stateParam.AddYMovement( -1 );
-                }
-                states[ ( int )currentState ].OnUpdate( rigidBody );
-                rigidBody.velocity = stateParam.CurrentMove;
+                stateMachine.OnUpdate();
             }
-
-        }
-
-        /// <summary>
-        /// Update処理後の定期更新処理です。
-        /// </summary>
-        private void LateUpdate()
-        {
-            if( currentState != nextState )
-            {
-                currentState = nextState;
-            }
-        }
-
-        /// <summary>
-        /// ステートを変更します。
-        /// </summary>
-        /// <param name="nextState"></param>
-        private void OnChangeState( CharacterState nextState )
-        {
-            this.nextState = nextState;
         }
 
         #endregion

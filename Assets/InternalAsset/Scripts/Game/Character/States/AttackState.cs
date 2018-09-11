@@ -47,7 +47,7 @@ namespace Shikigami.Game.Character
         /// 定期更新処理です
         /// </summary>
         /// <param name="rigid">キャラクターの剛体</param>
-        public override void OnUpdate( Rigidbody rigid )
+        public override void OnUpdate()
         {
         }
 
