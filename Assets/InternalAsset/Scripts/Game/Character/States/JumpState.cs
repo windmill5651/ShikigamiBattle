@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Shikigami.Game.InputUtil;
 
 /// <summary>
 /// 式神のゲームキャラクターの名前空間です
@@ -23,20 +22,26 @@ namespace Shikigami.Game.Character
         /// <summary>
         /// ジャンプの力
         /// </summary>
-        private const float JUMP_POW = 10;
+        private const float MAX_JUMP_POW = 4.0f;
+
+        private const float JUMP_UP_TIME = 0.5f;
+
+        private const float JUMP_MAX_COUNT = 2;
 
         #endregion
 
+
         #region フィールド/プロパティ
-        
-        /// <summary>
-        /// ジャンプ入力されているか?
-        /// </summary>
-        private bool isInputJump = false;
 
-        private Vector3 currentDir = new Vector3();
+        private float currentJumpPow = 0;
 
-        private float currentSpeedMag = 0;
+        private bool canJump = false;
+
+        private int jumpCount = 0;
+
+        private float jumpUpTime = 0;
+
+        private bool isCount = false;
 
         #endregion
 
@@ -53,70 +58,90 @@ namespace Shikigami.Game.Character
         {
         }
 
-        public override void InputAttack()
+        public override void OnChangedState()
         {
+            currentJumpPow = MAX_JUMP_POW;
+            canJump = true;
+            jumpUpTime = JUMP_UP_TIME;
+            jumpCount = 0;
+            isCount = false;
+            OnUpdate();
         }
 
-        public override void InputJump( bool isInput )
+        /// <summary>
+        /// 定期更新処理です。
+        /// </summary>
+        /// <param name="input">入力状態</param>
+        public override void OnUpdate()
         {
-            isInputJump = isInput;
-        }
-
-        public override void OnUpdate( Rigidbody rigid )
-        {
-            var inputVec = values.CurrentInputVec;
+            var input = values.input;
+            var currentDir = values.currentDir;
 
             // 入力がされていたら速度を徐々に上げる
-            if ( inputVec.sqrMagnitude > 0 )
+            if ( input.inputMoveVec.sqrMagnitude > 0 )
             {
-                currentDir = inputVec.normalized;
-                currentSpeedMag += Time.fixedDeltaTime * 5;
+                currentDir = input.inputMoveVec.normalized;
+                values.currentDir = currentDir;
             }
-            // 入力されていなかったら速度を徐々に下げる
-            else
-            {
-                currentSpeedMag -= Time.fixedDeltaTime * 5;
-            }
-
-            // 入力の程度によって最大を制限する
-            if ( inputVec.sqrMagnitude > currentSpeedMag * currentSpeedMag )
-            {
-                currentSpeedMag = inputVec.magnitude;
-            }
-
-            if ( currentSpeedMag > 1.0f )
-            {
-                currentSpeedMag = 1.0f;
-            }
-            else if ( currentSpeedMag < 0 )
-            {
-                currentSpeedMag = 0;
-            }
-
-            var speed = ( currentSpeedMag * 100 );
+            var speed = calc.GetSpeed( input.inputMoveVec );
             var moveVec = currentDir * ( speed * Time.fixedDeltaTime );
 
-            //animationControl.SetMoveSpeed( currentSpeedMag );
             // 移動中だけ方向転換をする
-            if ( currentSpeedMag > 0.0f )
+            if ( calc.SpeedMag > 0.0f )
             {
-                var lookDir = currentDir.normalized;
+                var lookDir = currentDir;
                 lookDir.y = 0;
-                rigid.rotation = Quaternion.LookRotation( lookDir );
+                LookAt( lookDir );
             }
 
-            values.SetMove( moveVec );
-            if ( isInputJump )
+            if ( input.isJump )
             {
-                values.SetYMovement( JUMP_POW );
-
+                isCount = true;
+                if ( jumpUpTime > 0 )
+                {
+                    currentJumpPow = MAX_JUMP_POW;
+                    jumpUpTime -= Time.fixedDeltaTime;
+                }
+                else
+                {
+                    currentJumpPow -= 10 * Time.fixedDeltaTime;
+                }
             }
+            else
+            {
+
+                if ( isCount )
+                {
+                    jumpCount++;
+                    isCount = false;
+                }
+
+                if ( jumpCount < JUMP_MAX_COUNT )
+                {
+                    Debug.Log( "JumpUp" );
+                    jumpUpTime = JUMP_UP_TIME;
+                }
+                else
+                {
+                    jumpUpTime = 0;
+                }
+                currentJumpPow -= 10 * Time.fixedDeltaTime;
+            }
+
+            moveVec.y = currentJumpPow;
+
+            animationControl.SetJumpSpeed( currentJumpPow / MAX_JUMP_POW );
+            Move( moveVec );
             
+
             if( values.isGround )
             {
+                if ( currentJumpPow <= 0 )
+                {
+                    animationControl.SetIsGround();
+                }
                 ChangeState( CharacterState.Idole );
             }
-
         }
 
         #endregion

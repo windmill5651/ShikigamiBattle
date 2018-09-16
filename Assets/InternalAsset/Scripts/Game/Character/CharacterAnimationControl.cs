@@ -70,6 +70,14 @@ namespace Shikigami.Game.Character
         }
 
         /// <summary>
+        /// 着地をセットします。
+        /// </summary>
+        public void SetIsGround()
+        {
+            animator.SetTrigger( "IsGround" );
+        }
+
+        /// <summary>
         /// 攻撃のトリガーを設定します。
         /// </summary>
         public void SetAttackTrigger()

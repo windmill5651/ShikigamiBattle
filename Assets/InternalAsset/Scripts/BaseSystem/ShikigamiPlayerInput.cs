@@ -39,7 +39,7 @@ namespace Shikigami.System
         public override void OnUpdate()
         {
             var inputVector = new Vector3( Input.GetAxis( "Horizontal" ), 0, Input.GetAxis( "Vertical" ) );
-            var isInputAttack = Input.GetButtonDown( "Fire1" );
+            var isInputAttack = Input.GetButton( "Fire1" );
             var isInputJump = Input.GetButton( "Jump" );
             var mouseVector = new Vector3( Input.GetAxis( "Mouse X" ), Input.GetAxis( "Mouse Y" ), 0 );
 

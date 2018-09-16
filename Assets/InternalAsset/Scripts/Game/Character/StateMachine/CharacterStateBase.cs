@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using Shikigami.Game.InputUtil;
 
 /// <summary>
 /// 式神のゲームキャラクター名前空間です。
@@ -28,9 +29,19 @@ namespace Shikigami.Game.Character
         protected CharacterAnimationControl animationControl;
 
         /// <summary>
+        /// 移動の計算を行います。
+        /// </summary>
+        protected MoveCaliclator calc = null;
+
+        /// <summary>
         /// ステート変更時処理です。
         /// </summary>
         private Action< CharacterState > onChangeState;
+
+        /// <summary>
+        /// キャラクターのRigidBody
+        /// </summary>
+        private Rigidbody rigid;
 
         #endregion
 
@@ -43,12 +54,19 @@ namespace Shikigami.Game.Character
         /// </summary>
         /// <param name="valuesObj">ステートの共有値です。</param>
         /// <param name="animControl">アニメーションのコントローラです。</param>
+        /// <param name="rigidBody">キャラクターの剛体</param>
         /// <param name="onChange">ステート変更時の処理です。</param>
-        public CharacterStateBase( CharacterStateSharedValues valuesObj, CharacterAnimationControl animControl, Action< CharacterState > onChange )
+        public CharacterStateBase( CharacterStateSharedValues valuesObj,
+                                   CharacterAnimationControl animControl,
+                                   Action< CharacterState > onChange )
         {
             values = valuesObj;
             animationControl = animControl;
             onChangeState = onChange;
+
+            rigid = valuesObj.rigidBody;
+
+            calc = new MoveCaliclator();
         }
 
         /// <summary>
@@ -64,23 +82,21 @@ namespace Shikigami.Game.Character
         }
 
         /// <summary>
-        /// 移動入力をします。
+        /// キャラクターを移動させます。
         /// </summary>
-        /// <param name="inputVec">移動入力値です</param>
-        public void InputMove( Vector3 inputVec )
+        /// <param name="moveVector"></param>
+        protected void Move( Vector3 moveVector )
         {
-            var inputVector = new Vector3();
-            // ベクトルのスカラ値が1.0を超えていたらノーマライズ
-            if ( inputVec.sqrMagnitude <= 1.0f )
-            {
-                inputVector = inputVec;
-            }
-            else
-            {
-                inputVector = inputVec.normalized;
-            }
+            rigid.velocity = moveVector;
+        }
 
-            values.CurrentInputVec = inputVector;
+        /// <summary>
+        /// キャラクターを指定の方向に向かせます
+        /// </summary>
+        /// <param name="lookDir"></param>
+        protected void LookAt( Vector3 lookDir )
+        {
+            rigid.rotation = Quaternion.LookRotation( lookDir );
         }
 
         public virtual void OnAnimationStateEnter(){}
@@ -93,22 +109,16 @@ namespace Shikigami.Game.Character
         #region 抽象メソッド
 
         /// <summary>
-        /// 攻撃入力です。
+        /// ステートが変更された時の処理です。
         /// </summary>
-        public abstract void InputAttack();
-
-        /// <summary>
-        /// ジャンプ入力です。
-        /// </summary>
-        /// <param name="isInput">入力状態</param>
-        public abstract void InputJump( bool isInput );
+        public abstract void OnChangedState();
 
         /// <summary>
         /// 更新処理です。
         /// </summary>
         /// <param name="rigid">RigidBody</param>
         /// <returns>遷移先ステート</returns>
-        public abstract void OnUpdate( Rigidbody rigid );
+        public abstract void OnUpdate();
 
         #endregion
     }

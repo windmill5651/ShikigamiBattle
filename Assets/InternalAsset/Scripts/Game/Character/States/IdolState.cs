@@ -1,4 +1,5 @@
 ﻿using System;
+using Shikigami.Game.InputUtil;
 using UnityEngine;
 
 /// <summary>
@@ -22,29 +23,15 @@ namespace Shikigami.Game.Character
         /// <param name="parameter">ステートのパラメータです。</param>
         /// <param name="animControl">アニメーションのコントローラです</param>
         /// <param name="onChange">ステート変更時の処理です。</param>
-        public IdolState( CharacterStateSharedValues parameter, CharacterAnimationControl animControl, Action< CharacterState > onChange ) : base( parameter, animControl, onChange ) { }
+        public IdolState( CharacterStateSharedValues parameter, CharacterAnimationControl animControl, Action<CharacterState> onChange ) : base( parameter, animControl, onChange ) { }
 
         /// <summary>
-        /// 攻撃入力です。
+        /// このステートに入ってきた時の処理です。
         /// </summary>
-        /// <returns>遷移後ステート</returns>
-        public override void InputAttack()
+        /// <param name="input"></param>
+        public override void OnChangedState()
         {
-            animationControl.SetAttackTrigger();
-            ChangeState( CharacterState.Attack );
-        }
-
-        /// <summary>
-        /// ジャンプ入力です。
-        /// </summary>
-        /// <param name="isInput">ジャンプ入力状態</param>
-        /// <returns>遷移後ステート</returns>
-        public override void InputJump( bool isInput )
-        {
-            if ( isInput )
-            {
-                ChangeState( CharacterState.Jump );
-            }
+            OnUpdate();
         }
 
         /// <summary>
@@ -52,11 +39,25 @@ namespace Shikigami.Game.Character
         /// </summary>
         /// <param name="rigid">キャラクターのRigidBodyです。</param>
         /// <returns>遷移後ステートです。</returns>
-        public override void OnUpdate( Rigidbody rigid )
+        public override void OnUpdate()
         {
-            if( values.IsInputMove )
+            var input = values.input;
+
+            if( input.inputMoveVec.sqrMagnitude > 0 )
             {
                 ChangeState( CharacterState.Move );
+                return;
+            }
+
+            if( input.isJump )
+            {
+                ChangeState( CharacterState.Jump );
+                return;
+            }
+
+            if( input.isAttack )
+            {
+                ChangeState( CharacterState.Attack );
             }
         }
 

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Shikigami.Game.InputUtil;
 
 /// <summary>
 /// 式神のキャラクター名前空間です。
@@ -17,11 +16,6 @@ namespace Shikigami.Game.Character
     /// </summary>
     public class MoveState : CharacterStateBase
     {
-
-        private float currentSpeedMag = 0;
-
-        private Vector3 currentDir = new Vector3();
-
         #region メソッド
 
         /// <summary>
@@ -35,24 +29,12 @@ namespace Shikigami.Game.Character
         }
 
         /// <summary>
-        /// 攻撃入力
+        /// このステートに入ってきた時の処理です。
         /// </summary>
-        /// <returns>遷移先ステート</returns>
-        public override void InputAttack()
+        /// <param name="input">現在の入力状態</param>
+        public override void OnChangedState()
         {
-        }
-
-        /// <summary>
-        /// ジャンプ入力
-        /// </summary>
-        /// <param name="isInput">入力方向</param>
-        /// <returns>遷移先ステート</returns>
-        public override void InputJump( bool isInput )
-        {
-            if( isInput )
-            {
-                ChangeState( CharacterState.Jump );
-            }
+            OnUpdate();
         }
 
         /// <summary>
@@ -60,47 +42,28 @@ namespace Shikigami.Game.Character
         /// </summary>
         /// <param name="rigid">キャラクターの物理挙動</param>
         /// <returns>遷移先ステート</returns>
-        public override void OnUpdate( Rigidbody rigid )
+        public override void OnUpdate()
         {
-            var inputVec = values.CurrentInputVec;
+            var input = values.input;
+            var currentDir = values.currentDir;
 
-            // 入力がされていたら速度を徐々に上げる
-            if ( inputVec.sqrMagnitude > 0 )
+            // 方向をセット
+            if ( input.inputMoveVec.sqrMagnitude > 0 )
             {
-                currentDir = inputVec.normalized;
-                currentSpeedMag += Time.fixedDeltaTime * 5;
-            }
-            // 入力されていなかったラ速度を徐々に下げる
-            else
-            {
-                currentSpeedMag -= Time.fixedDeltaTime * 5;
+                currentDir = input.inputMoveVec.normalized;
+                values.currentDir = currentDir;
             }
 
-            // 入力の程度によって最大を制限する
-            if ( inputVec.sqrMagnitude > currentSpeedMag * currentSpeedMag )
-            {
-                currentSpeedMag = inputVec.magnitude;
-            }
-
-            if( currentSpeedMag > 1.0f )
-            {
-                currentSpeedMag = 1.0f;
-            }
-            else if( currentSpeedMag < 0 )
-            {
-                currentSpeedMag = 0;
-            }
-
-            var speed = ( currentSpeedMag * 100 );
+            var speed = calc.GetSpeed( input.inputMoveVec ) * 100;
             var moveVec = currentDir * ( speed * Time.fixedDeltaTime );
 
-            animationControl.SetMoveSpeed( currentSpeedMag );
+            animationControl.SetMoveSpeed( calc.SpeedMag );
             // 移動中だけ方向転換をする
-            if ( currentSpeedMag > 0.0f )
+            if ( calc.SpeedMag > 0.0f )
             {
-                var lookDir = currentDir.normalized;
+                var lookDir = currentDir;
                 lookDir.y = 0;
-                rigid.rotation = Quaternion.LookRotation( lookDir );
+                LookAt( lookDir );
             }
             else
             {
@@ -108,7 +71,14 @@ namespace Shikigami.Game.Character
                 ChangeState( CharacterState.Idole );
             }
 
-            values.SetMove( moveVec );
+            animationControl.SetMoveSpeed( calc.SpeedMag );
+            Move( moveVec );
+
+            if( input.isJump )
+            {
+                animationControl.SetMoveSpeed( 0 );
+                ChangeState( CharacterState.Jump );
+            }
         }
 
         #endregion

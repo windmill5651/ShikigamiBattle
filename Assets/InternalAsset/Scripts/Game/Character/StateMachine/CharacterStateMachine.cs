@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Shikigami.Game.InputUtil;
 
 /// <summary>
 /// 式神のキャラクター名前空間です。
@@ -9,7 +8,10 @@ namespace Shikigami.Game.Character
 {
 
     /// <summary>
-    /// キャラクターのステートマシンです。
+    ///  CharacterStateMachine
+    ///  キャラクターのステートマシンです。
+    ///
+    /// Author:Windmill
     /// </summary>
     public class CharacterStateMachine
     {
@@ -31,6 +33,11 @@ namespace Shikigami.Game.Character
         private CharacterState nextState = CharacterState.Idole;
 
         /// <summary>
+        /// 現在の入力情報です。
+        /// </summary>
+        private CurrentInput input;
+
+        /// <summary>
         /// ステート共有のパラメータです。
         /// </summary>
         public CharacterStateSharedValues StateValues
@@ -47,9 +54,13 @@ namespace Shikigami.Game.Character
         /// セットアップを行います。
         /// </summary>
         /// <param name="control">アニメーションのコントローラです</param>
-        public void Setup( CharacterAnimationControl control )
+        public void Setup( CharacterAnimationControl control, CurrentInput input, Rigidbody rigidBody )
         {
             var parameter = new CharacterStateSharedValues();
+
+            parameter.input = input;
+            parameter.rigidBody = rigidBody;
+
             StateValues = parameter;
             states = new CharacterStateBase[]
                 {
@@ -58,19 +69,6 @@ namespace Shikigami.Game.Character
                     new AttackState( parameter, control, OnChangeState ),
                     new JumpState( parameter, control, OnChangeState ),
                 };
-        }
-
-        /// <summary>
-        /// 固定フレームレートでの定期更新処理です。
-        /// </summary>
-        public void OnUpdate( Rigidbody rigid )
-        {
-            states[ ( int )currentState ].OnUpdate( rigid );
-
-            if ( currentState != nextState )
-            {
-                currentState = nextState;
-            }
         }
 
         /// <summary>
@@ -91,32 +89,21 @@ namespace Shikigami.Game.Character
             states[ ( int )currentState ].OnAnimationStateExit();
         }
 
-        /// <summary>
-        /// 攻撃入力
-        /// </summary>
-        public void OnInputAttack()
-        {
-            states[ ( int )currentState ].InputAttack();
-        }
 
         /// <summary>
-        /// 移動入力
+        /// 固定フレームレートでの定期更新処理です。
         /// </summary>
-        /// <param name="inputDir">入力されている方向です。</param>
-        public void OnInputMove( Vector3 inputDir )
+        public void OnUpdate()
         {
-            states[ ( int )currentState ].InputMove( inputDir );
-        }
+            Debug.Log( "CurrentState:" + currentState );
+            states[ ( int )currentState ].OnUpdate();
 
-        /// <summary>
-        /// ジャンプ入力です。
-        /// </summary>
-        /// <param name="isInput">入力されているか</param>
-        public void OnInputJump( bool isInput )
-        {
-            states[ ( int )currentState ].InputJump( isInput );
+            if ( currentState != nextState )
+            {
+                currentState = nextState;
+                states[ ( int )nextState ].OnChangedState();
+            }
         }
-
 
         /// <summary>
         /// ステートを変更します。

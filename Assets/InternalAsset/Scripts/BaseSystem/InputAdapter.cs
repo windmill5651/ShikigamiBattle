@@ -69,10 +69,7 @@ namespace Shikigami.Game
         /// <param name="isInput">入力されたか</param>
         public void InputAttackControl( bool isInput )
         {
-            if ( isInput )
-            {
-                character.Attack();
-            }
+            character.Attack( isInput );
         }
 
         /// <summary>

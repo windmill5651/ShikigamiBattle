@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System;
+using Shikigami.Game.InputUtil;
+
 
 /// <summary>
 /// 式神のキャラクター名前空間です。
@@ -16,6 +18,15 @@ namespace Shikigami.Game.Character
     public class AttackState : CharacterStateBase
     {
 
+        #region フィールド/プロパティ
+
+        private bool isAttackInput = false;
+
+        #endregion
+
+
+        #region メソッド
+
         /// <summary>
         /// 攻撃ステートコンストラクタです。
         /// </summary>
@@ -28,27 +39,13 @@ namespace Shikigami.Game.Character
         }
 
         /// <summary>
-        /// 攻撃入力時の処理です。
+        /// ステート変更時処理です。
         /// </summary>
-        public override void InputAttack()
+        public override void OnChangedState()
         {
+            isAttackInput = true;
+            // 入ってきた時に攻撃トリガーをセット
             animationControl.SetAttackTrigger();
-        }
-
-        /// <summary>
-        /// ジャンプ入力時の処理です。
-        /// </summary>
-        /// <param name="isInput">入力状況</param>
-        public override void InputJump( bool isInput )
-        {
-        }
-
-        /// <summary>
-        /// 定期更新処理です
-        /// </summary>
-        /// <param name="rigid">キャラクターの剛体</param>
-        public override void OnUpdate( Rigidbody rigid )
-        {
         }
 
         /// <summary>
@@ -56,13 +53,35 @@ namespace Shikigami.Game.Character
         /// </summary>
         public override void OnAnimationStateExit()
         {
-
             // ステート終了時に攻撃入力が成立していない場合は立ちステートへ
             if ( !animationControl.IsAttacking )
             {
                 ChangeState( CharacterState.Idole );
             }
         }
+
+        /// <summary>
+        /// 定期更新処理です。
+        /// </summary>
+        public override void OnUpdate()
+        {
+            var input = values.input;
+            // 攻撃入力がされていたら攻撃トリガーを引き続ける
+            if( input.isAttack )
+            {
+                if ( !isAttackInput )
+                {
+                    animationControl.SetAttackTrigger();
+                    isAttackInput = true;
+                }
+            }
+            else
+            {
+                isAttackInput = false;
+            }
+        }
+
+        #endregion
 
     }
 

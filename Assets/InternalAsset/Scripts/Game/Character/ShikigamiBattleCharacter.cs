@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Game.Util.Animation;
 using System.Collections;
+using Shikigami.Game.InputUtil;
 
 /// <summary>
 /// シキガミのゲームキャラクターの名前空間です。
@@ -58,6 +59,11 @@ namespace Shikigami.Game.Character
         /// キャラクターのステートマシンです。
         /// </summary>
         private CharacterStateMachine stateMachine = null;
+
+        /// <summary>
+        /// 現在の入力状況です。
+        /// </summary>
+        private CurrentInput input = null;
 
         /// <summary>
         /// 初期化済み？
@@ -162,8 +168,8 @@ namespace Shikigami.Game.Character
                 animationHandler.Setup( animator, OnStateEnter, OnStateFinish );
 
                 stateMachine = new CharacterStateMachine();
-                stateMachine.Setup( animationControl );
-
+                input = new CurrentInput();
+                stateMachine.Setup( animationControl, input, rigidBody );
             }
             else
             {
@@ -214,18 +220,21 @@ namespace Shikigami.Game.Character
                     moveDir.Normalize();
                 }
 
-                stateMachine.OnInputMove( moveDir );
+                // 移動入力
+                input.inputMoveVec = moveDir;
             }
         }
 
         /// <summary>
         /// 攻撃の入力を行います。
         /// </summary>
-        public void Attack()
+        public void Attack( bool isInput )
         {
             if ( isInit )
             {
-                stateMachine.OnInputAttack();
+                Debug.Log( "InputAttack:" + isInput );
+                // 攻撃入力
+                input.isAttack = isInput;
             }
         }
 
@@ -236,7 +245,8 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                stateMachine.OnInputJump( isInput );
+                // ジャンプ入力
+                input.isJump = isInput;
             }
         }
 
@@ -247,15 +257,14 @@ namespace Shikigami.Game.Character
         {
             if ( isInit )
             {
-                RaycastHit hit;
-                Debug.DrawRay( transform.position + Vector3.up , Vector3.down );
                 if ( Physics.Raycast( transform.position + Vector3.up , Vector3.down,1.1f, 1<<8  ) )
                 {
                     // Yの絶対値があれば0をセット
-                    if( Mathf.Abs( stateMachine.StateValues.CurrentMove.y ) > 0 )
+                    if( Mathf.Abs( rigidBody.velocity.y ) > 0 )
                     {
-                        Debug.Log( " SetZero :" + stateMachine.StateValues.CurrentMove.y );
-                        stateMachine.StateValues.SetYMovement( 0 );
+                        var currentVel = rigidBody.velocity;                    
+                        currentVel.y = 0;
+                        rigidBody.velocity = currentVel;
                     }
 
                     stateMachine.StateValues.isGround = true;
@@ -263,12 +272,12 @@ namespace Shikigami.Game.Character
                 else
                 {
                     stateMachine.StateValues.isGround = false;
-                    stateMachine.StateValues.AddYMovement( -1 );
+                    var currentVel = rigidBody.velocity;
+                    currentVel.y = 0;
+                    rigidBody.velocity = currentVel;
                 }
 
-                stateMachine.OnUpdate( rigidBody );
-
-                rigidBody.velocity = stateMachine.StateValues.CurrentMove;
+                stateMachine.OnUpdate();
             }
 
         }
